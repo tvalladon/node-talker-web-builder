@@ -105,3 +105,47 @@ body {
 .hidden {
     display: none;
 }
+
+#slideOutForm {
+    position: fixed;
+    top: 0;
+    right: -400px; /* Start off-screen */
+    width: 400px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+#slideOutForm.visible {
+    right: 0; /* Slide in */
+}
+
+#slideOutForm h3 {
+    margin-top: 0;
+}
+
+#slideOutForm label {
+    display: block;
+    margin-top: 10px;
+}
+
+#slideOutForm input[type="text"],
+#slideOutForm textarea {
+    width: 100%;
+    margin-top: 5px;
+}
+
+#slideOutForm button {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+#slideOutForm #whitelistPlaceholder,
+#slideOutForm #propsPlaceholder,
+#slideOutForm #exitsPlaceholder {
+    margin-top: 10px;
+}
