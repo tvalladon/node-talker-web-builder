@@ -13,63 +13,85 @@ body {
 
 #info {
     position: fixed;
-    top: 10px;
-    right: 10px;
-    padding: 5px;
-    border: 1px solid #000;
+    top: 15px; /* increased from 10px */
+    right: 15px; /* increased from 10px */
+    padding: 12px; /* increased from 5px */
+    border: 1px solid #aaa; /* changed from #000 */
     background-color: #f8f8f8;
+    border-radius: 5px; /* new border radius */
+    transition: background-color 0.3s ease; /* new transition */
+}
+
+#info:hover {
+    background-color: #f2f2f2; /* change on hover */
 }
 
 #toolPallet {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
-    padding: 10px;
-    border: 1px solid #000;
+    bottom: 15px; /* increased margin bottom */
+    right: 15px; /* increased margin right */
+    padding: 8px; /* increased padding */
+    border: 1px solid #aaa; /* changed border color */
     background-color: #f8f8f8;
+    border-radius: 5px; /* new border radius */
 }
 
-#pointerIconContainer {
-    margin-right: 10px; /* Adjust as needed */
-}
-
+#roomShapeContainer,
+#pointerIconContainer,
+#penIconContainer,
 #eraserIconContainer {
-    margin-right: 10px; /* Adjust as needed */
+    margin-right: 10px;
+    padding: 10px; /* new padding */
+    transition: all 0.5s ease;
+    background-color: #f2f2f2; /* background color for icon */
+    border-radius: 5px; /* border radius for icon */
+    font-size: 20px;
 }
 
-#roomShape {
-    width: 20px;
-    height: 20px;
-    background-color: #B4B4B4;
-    border: 1px solid #000;
+#roomShapeContainer:hover,
+#pointerIconContainer:hover,
+#penIconContainer:hover,
+#eraserIconContainer:hover {
+    filter: invert(1);
 }
 
 /* CSS */
 #hamburger-menu {
     position: fixed;
-    top: 16px;
-    left: 16px;
-    font-size: 24px; /* adjust as needed */
+    top: 10px; /* adjusted position */
+    left: 10px; /* adjusted position */
+    font-size: 24px;
     cursor: pointer;
     background-color: #fff;
     color: #000;
-    padding: 10px;
+    padding: 10px; /* increased padding */
+    border-radius: 5px; /* new border radius */
+    transition: background-color 0.3s ease; /* new transition */
 }
+
+#hamburger-menu:hover {
+    background-color: #f8f8f8; /* softer hover effect color */
+}
+
 
 #expanded-menu {
     position: fixed;
-    top: 16px;
+    top: 10px;
     left: 58px;
     width: 150px;
     background-color: #f8f9fa;
     border: solid 1px #ccc;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px; /* new border radius */
+    padding: 10px; /* new padding */
 }
 
 #expanded-menu .menu-item {
     padding: 10px;
     cursor: pointer;
     border-bottom: 1px solid #ccc;
+    transition: background-color 0.3s ease; /* hover transition */
+    text-align: center;
 }
 
 #expanded-menu .menu-item:hover {

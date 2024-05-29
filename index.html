@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Node Talker Web Builder Tool</title>
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 </head>
@@ -17,23 +18,24 @@
 <!-- Tool pallet -->
 <div id="toolPallet" style="position: fixed; bottom: 10px; right: 10px; display: flex;">
     <div id="pointerIconContainer">
-        <i id="pointerIcon" class="fas fa-mouse-pointer"></i>
+        <i id="pointerIcon" class="fas fa-hand-pointer"></i>
     </div>
     <div id="eraserIconContainer">
         <i id="eraserIcon" class="fas fa-eraser"></i>
     </div>
-    <div id="roomShape"></div>
+    <div id="penIconContainer">
+        <i id="penIcon" class="fas fa-pen"></i>
+    </div>
+    <div id="roomShapeContainer">
+        <i id="roomShape" class="fas fa-vector-square"></i>
+    </div>
 </div>
 
 <div id="expanded-menu" class="hidden">
-    <div id="debug" class="menu-item" onclick="debugRooms()">debug</div>
     <div class="menu-item">
-        Zone ID: <input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001"/>
+        <input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001"/> : <input type="number" id="startingRoomId" min="-999" max="999" value="001">
     </div>
-    <div class="field-row">
-        <label for="startingRoomId">Starting Room ID:</label>
-        <input type="number" id="startingRoomId" min="-999" max="999" onchange="changeRoomId(this)" value="1">
-    </div>
+    <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>
     <!-- Add more items here -->
 </div>
 
