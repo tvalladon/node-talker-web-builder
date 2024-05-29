@@ -65,6 +65,9 @@ class Grid {
         this.currentRoomId = this.startingRoomId;
 
         this.setupEventListeners();
+
+        // Add resize event listener
+        window.addEventListener('resize', () => this.handleResize());
     }
 
     calculateOffsetX() {
@@ -73,6 +76,14 @@ class Grid {
 
     calculateOffsetY() {
         return -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.height / (2 * 20 * this.scale));
+    }
+
+    handleResize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.offsetX = this.calculateOffsetX();
+        this.offsetY = this.calculateOffsetY();
+        this.drawGrid();
     }
 
     initializeGrid() {
