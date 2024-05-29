@@ -72,28 +72,39 @@ class Grid {
     }
 
     drawGrid() {
+        // console.group("Drawing grid");
+        // console.log("Clearing layer...");
         layer.destroyChildren(); // Clear the Konva layer before redrawing
 
-        // Draw the background if necessary
+        // Draw the background
+        // console.log("Drawing background...");
         this.drawBackground();
 
-        // Draw rooms and connections
-        this.drawRooms();
-        this.drawConnections();
-
-        // Optional: draw grid lines if needed
+        // Draw grid lines
+        // console.log("Drawing grid lines...");
         this.drawGridLines();
+
+        // Draw rooms and connections
+        // console.log("Drawing rooms...");
+        this.drawRooms();
+        // console.log("Drawing connections...");
+        this.drawConnections();
 
         // Highlight temporary room or mouse square based on the current tool
         if (this.isDrawing && this.selectedTool === 'room') {
+            // console.log("Highlighting temporary room...");
             this.highlightTemporaryRoom();
         } else if (!this.isDrawing && !this.isPanning) {
+            // console.log("Highlighting mouse square...");
             this.highlightMouseSquare();
         }
 
         // Ensure everything is drawn in a single batch
         layer.batchDraw();
+        // console.log("Grid drawn with offsetX:", this.offsetX, "offsetY:", this.offsetY);
+        // console.groupEnd();
     }
+
 
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -186,7 +197,7 @@ class Grid {
                 strokeWidth: 1,
             });
             layer.add(verticalLine);
-            // console.log(`Added vertical line at x = ${i}`);
+            // // console.log(`Added vertical line at x = ${i}`);
         }
 
         if (j <= this.totalGridSquares) {
@@ -199,7 +210,7 @@ class Grid {
                 strokeWidth: 1,
             });
             layer.add(horizontalLine);
-            // console.log(`Added horizontal line at y = ${j}`);
+            // // console.log(`Added horizontal line at y = ${j}`);
         }
     }
 
@@ -277,22 +288,27 @@ class Grid {
         this.isPanning = true;
         this.startPanX = x;
         this.startPanY = y;
+        // console.log(`Pan started at: startPanX=${this.startPanX}, startPanY=${this.startPanY}`);
     }
 
     panMove(x, y) {
         if (this.isPanning) {
             const dx = x - this.startPanX;
             const dy = y - this.startPanY;
+            // console.group("Panning");
+            // console.log(`Panning: dx=${dx}, dy=${dy}`);
             this.updateOffset(dx, dy);
             this.startPanX = x;
             this.startPanY = y;
             this.drawGrid(); // Redraw the grid to update the view
+            // console.groupEnd();
         }
     }
 
     updateOffset(dx, dy) {
         this.offsetX += dx;
         this.offsetY += dy;
+        // console.log(`Offset updated: offsetX=${this.offsetX}, offsetY=${this.offsetY}`);
     }
 
     isWithinBounds(value, dimension) {
@@ -389,6 +405,7 @@ class Grid {
     }
 
     handleMouseDown(x, y) {
+        // console.log(`Mouse down at: x=${x}, y=${y}`);
         if (this.selectedTool === 'room') {
             this.startDrawing(x, y);
         } else if (this.selectedTool === 'eraser') {
@@ -627,7 +644,7 @@ class Grid {
             // Check if a room already exists at the specified grid coordinates
             let existingRoom = this.rooms.find(room => room.gridX === gridX && room.gridY === gridY);
             if (existingRoom) {
-                console.log(`Room already exists at (${gridX}, ${gridY})`);
+                // console.log(`Room already exists at (${gridX}, ${gridY})`);
             } else {
                 let roomId = this.generateRoomId(); // Generate roomId
                 let zoneId = parseInt(this.zoneId, 10); // Ensure zoneId is an integer
@@ -695,19 +712,21 @@ class Grid {
         window.addEventListener('mousemove', (e) => this.handleMouseMove(e));
     }
 
-    handleMouseMove(x, y) {
-        this.mouseX = x;
-        this.mouseY = y;
+    handleMouseMove(event) {
+        const pos = stage.getPointerPosition();
+        // console.log(`Mouse move at: x=${pos.x}, y=${pos.y}`);
+        this.mouseX = pos.x;
+        this.mouseY = pos.y;
 
         if (this.isDrawing && this.selectedTool === 'room') {
-            this.updateTemporaryRoom(x, y);
+            this.updateTemporaryRoom(pos.x, pos.y);
         } else if (this.isPanning) {
-            this.panMove(x, y);
+            this.panMove(pos.x, pos.y);
         } else {
             this.drawGrid(); // Redraw the grid to clear previous highlights
             this.highlightMouseSquare();
         }
-        this.updateInfo(x, y);
+        this.updateInfo(pos.x, pos.y);
     }
 
     updateTemporaryRoom(x, y) {
@@ -876,16 +895,16 @@ document.getElementById('startingRoomId').addEventListener('change', function ()
 
 function debugRooms() {
     if (typeof grid !== 'undefined') {
-        console.log(grid.rooms);
+        // console.log(grid.rooms);
     } else {
-        console.error('Grid is not defined');
+        // console.error('Grid is not defined');
     }
 }
 
 function jsonRooms() {
     if (typeof grid !== 'undefined') {
-        console.log(JSON.stringify(grid.rooms, null, 2));
+        // console.log(JSON.stringify(grid.rooms, null, 2));
     } else {
-        console.error('Grid is not defined');
+        // console.error('Grid is not defined');
     }
 }
