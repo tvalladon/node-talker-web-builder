@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- Canvas -->
+<canvas id="canvas"></canvas>
+
+<!-- Hamburger -->
+<div id="hamburger-menu" class="fa fa-bars" onclick="openMenu()"></div>
+
+<!-- Cords display -->
+<div id="info" style="position: fixed; top: 10px; right: 10px;"></div>
+
+<!-- Tool pallet -->
+<div id="toolPallet" style="position: fixed; bottom: 10px; right: 10px; display: flex;">
+    <div id="pointerIconContainer">
+        <i id="pointerIcon" class="fas fa-mouse-pointer"></i>
+    </div>
+    <div id="eraserIconContainer">
+        <i id="eraserIcon" class="fas fa-eraser"></i>
+    </div>
+    <div id="roomShape"></div>
+</div>
+
+<div id="expanded-menu" class="hidden">
+    <div id="debug" class="menu-item" onclick="debugRooms()">debug</div>
+    <div class="menu-item">
+        Zone ID: <input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001"/>
+    </div>
+    <div class="field-row">
+        <label for="startingRoomId">Starting Room ID:</label>
+        <input type="number" id="startingRoomId" min="-999" max="999" onchange="changeRoomId(this)" value="1">
+    </div>
+    <!-- Add more items here -->
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
