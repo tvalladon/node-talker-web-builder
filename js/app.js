@@ -174,6 +174,9 @@ class Grid {
                 case 'room':
                     this.ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
                     break;
+                case 'edit':
+                    this.ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+                    break;
                 default:
                     this.ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
                     break;
@@ -181,6 +184,7 @@ class Grid {
             this.ctx.fillRect(highlightX * 20 * this.scale + this.offsetX, highlightY * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
         }
     }
+
 
     getHighlightColor() {
         switch (this.selectedTool) {
@@ -365,7 +369,9 @@ class Grid {
         document.getElementById('roomShape').addEventListener('click', () => this.selectTool('room'));
         document.getElementById('pointerIcon').addEventListener('click', () => this.selectTool(null));
         document.getElementById('eraserIconContainer').addEventListener('click', () => this.selectTool('eraser'));
+        document.getElementById('penIconContainer').addEventListener('click', () => this.selectTool('edit'));
     }
+
 
     setupZoomEventListener() {
         window.addEventListener('wheel', (e) => this.handleZoom(e));
@@ -394,6 +400,7 @@ class Grid {
         }
         this.updateInfo(e.clientX, e.clientY);
     }
+
 
     updateTemporaryRoom(x, y) {
         this.temporaryRoomX = Math.floor((x - this.offsetX) / (20 * this.scale));
