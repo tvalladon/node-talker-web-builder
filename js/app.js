@@ -348,9 +348,22 @@ class Grid {
     }
 
     showEditForm(room) {
-        // Format zoneId and roomId as zero-padded to 3 digits
+        const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
         const formattedZoneId = String(room.zoneId).padStart(3, '0');
         const formattedRoomId = String(room.roomId).padStart(3, '0');
+
+        let exitsHtml = '';
+        for (let [direction, target] of Object.entries(room.exits)) {
+            exitsHtml += `
+            <div class="exit-row" data-direction="${direction}">
+                ${direction} to ${target} 
+                <i class="fas fa-edit edit-exit"></i> 
+                <i class="fas fa-trash-alt delete-exit"></i>
+            </div>`;
+        }
+        if (Object.keys(room.exits).length < 10) {
+            exitsHtml += `<div class="exit-row add-exit"><i class="fas fa-plus"></i> Add Exit</div>`;
+        }
 
         const formHtml = `
         <div id="editFormContent">
@@ -371,10 +384,9 @@ class Grid {
             <input type="text" id="roomCreator" value="${room.creator}">
             <label for="roomOwner">Owner:</label>
             <input type="text" id="roomOwner" value="${room.owner}">
-            <!-- Placeholders for whitelist, props, and exits -->
+            <div id="exitsPlaceholder">Exits: ${exitsHtml}</div>
             <div id="whitelistPlaceholder">Whitelist: <em>Placeholder for whitelist</em></div>
             <div id="propsPlaceholder">Props: <em>Placeholder for props</em></div>
-            <div id="exitsPlaceholder">Exits: <em>Placeholder for exits</em></div>
             <button id="saveRoom">Save</button>
             <button id="cancelEdit">Cancel</button>
         </div>
@@ -388,8 +400,144 @@ class Grid {
         // Add event listeners for save and cancel buttons
         document.getElementById('saveRoom').addEventListener('click', () => this.saveRoom(room));
         document.getElementById('cancelEdit').addEventListener('click', () => this.closeEditForm());
+
+        // Add event listeners for editing and deleting exits
+        document.querySelectorAll('.edit-exit').forEach(el => el.addEventListener('click', (e) => this.editExit(e, room)));
+        document.querySelectorAll('.delete-exit').forEach(el => el.addEventListener('click', (e) => this.deleteExit(e, room)));
+        document.querySelector('.add-exit').addEventListener('click', () => this.addExit(room));
     }
 
+
+    editExit(e, room) {
+        const exitRow = e.target.closest('.exit-row');
+        const direction = exitRow.getAttribute('data-direction');
+        const target = room.exits[direction];
+        const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
+
+        const roomOptions = this.rooms.map(r => {
+            const roomId = String(r.roomId).padStart(3, '0');
+            const zoneId = String(r.zoneId).padStart(3, '0');
+            const roomName = r.name ? ` (${r.name})` : '';
+            return `<option value="${zoneId}:${roomId}" ${zoneId}:${roomId} === target ? 'selected' : ''>${zoneId}:${roomId}${roomName}</option>`;
+        }).join('');
+
+        const editHtml = `
+        <select class="edit-direction">${directions.map(dir => `<option value="${dir}" ${dir === direction ? 'selected' : ''}>${dir}</option>`).join('')}</select>
+        <select class="edit-target">${roomOptions}</select>
+        <i class="fas fa-save save-exit"></i>
+        <i class="fas fa-times cancel-edit"></i>
+    `;
+
+        exitRow.innerHTML = editHtml;
+
+        exitRow.querySelector('.save-exit').addEventListener('click', () => this.saveExit(exitRow, room));
+        exitRow.querySelector('.cancel-edit').addEventListener('click', () => this.cancelEditExit(exitRow, direction, target));
+    }
+
+    saveExit(exitRow, room) {
+        const newDirection = exitRow.querySelector('.edit-direction').value;
+        const newTarget = exitRow.querySelector('.edit-target').value;
+        const oldDirection = exitRow.getAttribute('data-direction');
+
+        delete room.exits[oldDirection];
+        room.exits[newDirection] = newTarget;
+
+        // Automatically create reciprocal exit
+        const reverseDirection = this.getReverseDirection(newDirection);
+        const targetRoom = this.rooms.find(r => `${String(r.zoneId).padStart(3, '0')}:${String(r.roomId).padStart(3, '0')}` === newTarget);
+        if (targetRoom) {
+            targetRoom.exits[reverseDirection] = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+        }
+
+        this.showEditForm(room);
+    }
+
+
+    cancelEditExit(exitRow, direction, target) {
+        exitRow.innerHTML = `
+        ${direction} to ${target}
+        <i class="fas fa-edit edit-exit"></i>
+        <i class="fas fa-trash-alt delete-exit"></i>
+    `;
+
+        exitRow.querySelector('.edit-exit').addEventListener('click', (e) => this.editExit(e, room));
+        exitRow.querySelector('.delete-exit').addEventListener('click', (e) => this.deleteExit(e, room));
+    }
+
+    deleteExit(e, room) {
+        const exitRow = e.target.closest('.exit-row');
+        const direction = exitRow.getAttribute('data-direction');
+
+        delete room.exits[direction];
+
+        this.showEditForm(room);
+    }
+
+    addExit(room) {
+        const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
+        const roomOptions = this.rooms.map(r => {
+            const roomId = String(r.roomId).padStart(3, '0');
+            const zoneId = String(r.zoneId).padStart(3, '0');
+            const roomName = r.name ? ` (${r.name})` : '';
+            return `<option value="${zoneId}:${roomId}">${zoneId}:${roomId}${roomName}</option>`;
+        }).join('');
+
+        const newExitHtml = `
+        <div class="exit-row new-exit">
+            <select class="edit-direction">${directions.map(dir => `<option value="${dir}">${dir}</option>`).join('')}</select>
+            <select class="edit-target">${roomOptions}</select>
+            <i class="fas fa-save save-exit"></i>
+            <i class="fas fa-times cancel-edit"></i>
+        </div>
+    `;
+
+        document.querySelector('#exitsPlaceholder').insertAdjacentHTML('beforeend', newExitHtml);
+
+        const newExitRow = document.querySelector('.new-exit');
+        newExitRow.querySelector('.save-exit').addEventListener('click', () => this.saveNewExit(newExitRow, room));
+        newExitRow.querySelector('.cancel-edit').addEventListener('click', () => newExitRow.remove());
+    }
+
+    saveNewExit(newExitRow, room) {
+        const newDirection = newExitRow.querySelector('.edit-direction').value;
+        const newTarget = newExitRow.querySelector('.edit-target').value;
+
+        room.exits[newDirection] = newTarget;
+
+        // Automatically create reciprocal exit
+        const reverseDirection = this.getReverseDirection(newDirection);
+        const targetRoom = this.rooms.find(r => `${String(r.zoneId).padStart(3, '0')}:${String(r.roomId).padStart(3, '0')}` === newTarget);
+        if (targetRoom) {
+            targetRoom.exits[reverseDirection] = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+        }
+
+        this.showEditForm(room);
+    }
+
+
+    closeEditForm() {
+        const slideOutForm = document.getElementById('slideOutForm');
+        slideOutForm.classList.remove('visible');
+        slideOutForm.classList.add('hidden');
+        slideOutForm.innerHTML = ''; // Clear form content
+    }
+
+
+    getReverseDirection(direction) {
+        const reverseMap = {
+            north: 'south',
+            south: 'north',
+            east: 'west',
+            west: 'east',
+            up: 'down',
+            down: 'up',
+            northeast: 'southwest',
+            southwest: 'northeast',
+            northwest: 'southeast',
+            southeast: 'northwest'
+        };
+        return reverseMap[direction];
+    }
 
     saveRoom(room) {
         room.name = document.getElementById('roomName').value;
@@ -518,7 +666,7 @@ class Grid {
             );
         }
     }
-    
+
     updateAllRoomZoneIds(newZoneId) {
         this.rooms.forEach(room => {
             room.zoneId = newZoneId;
@@ -590,6 +738,15 @@ document.getElementById('startingRoomId').addEventListener('change', function ()
 function debugRooms() {
     if (typeof grid !== 'undefined') {
         console.log(grid.rooms);
+    } else {
+        console.error('Grid is not defined');
+    }
+}
+
+
+function jsonRooms() {
+    if (typeof grid !== 'undefined') {
+        console.log(JSON.stringify(grid.rooms, null, 2));
     } else {
         console.error('Grid is not defined');
     }
