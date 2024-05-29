@@ -3,7 +3,7 @@ class Room {
         this.gridX = gridX;
         this.gridY = gridY;
         this.gridSize = gridSize;
-        this.roomId = roomId;
+        this.roomId = parseInt(roomId, 10);  // Ensure roomId is stored as an integer
         this.zoneId = parseInt(zoneId, 10);  // Ensure zoneId is stored as an integer
         this.name = "";
         this.description = "";
@@ -32,8 +32,8 @@ class Room {
 
         ctx.fillStyle = 'black';
         ctx.font = (0.8 * scale) + "px Arial";
-        const roomIdStr = String(this.roomId).padStart(3, '0');
-        const zoneIdStr = String(this.zoneId).padStart(3, '0'); // Zero-pad zoneId
+        const roomIdStr = zeroPad(this.roomId, 3); // Zero-pad roomId
+        const zoneIdStr = zeroPad(this.zoneId, 3); // Zero-pad zoneId
         const padding = 1 * scale; // Add padding
         ctx.fillText(`${zoneIdStr}:${roomIdStr}`, roomX + padding, roomY + padding + ctx.measureText('M').width);
         ctx.lineWidth = 1;
@@ -88,12 +88,19 @@ class Grid {
         this.drawBackground();
         this.drawRooms();
         this.drawGridLines();
-        this.highlightMouseSquare();
+
+        if (this.isDrawing && this.selectedTool === 'room') {
+            this.highlightTemporaryRoom();
+        } else if (!this.isDrawing && !this.isPanning) {
+            this.highlightMouseSquare();
+        }
     }
+
 
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
 
     drawBackground() {
         this.ctx.fillStyle = '#333';
@@ -120,17 +127,20 @@ class Grid {
             }
         }
 
-        // Drawing the special label at (500, 500)
-        if (this.scale >= 5) {
+        // Drawing the special label at (500, 500) only if no room exists
+        if (this.scale >= 5 && !this.isRoomAt(500, 500)) {
             this.ctx.fillStyle = 'black';
             this.ctx.font = `${1 * this.scale}px Arial`;
             this.ctx.fillText(`500, 500`, (20 * 500 + 15) * this.scale + this.offsetX, (20 * 500 + 18) * this.scale + this.offsetY);
-        } else {
+        } else if (!this.isRoomAt(500, 500)) {
             this.ctx.fillStyle = 'rgba(100, 100, 100, 1)';
             this.ctx.fillRect(500 * 20 * this.scale + this.offsetX, 500 * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
         }
     }
 
+    isRoomAt(gridX, gridY) {
+        return this.rooms.some(room => room.gridX === gridX && room.gridY === gridY);
+    }
 
     drawGridLine(i, j) {
         this.ctx.beginPath();
@@ -146,7 +156,7 @@ class Grid {
 
     drawLabels(i, j) {
         if (this.scale >= 5) {
-            this.ctx.fillStyle =  'rgba(100, 100, 100, 1)';
+            this.ctx.fillStyle = 'rgba(100, 100, 100, 1)';
             this.ctx.font = `${1 * this.scale}px Arial`;
             this.ctx.fillText(`${i}, ${j}`, (20 * i + 15) * this.scale + this.offsetX, (20 * j + 18) * this.scale + this.offsetY);
         }
@@ -157,7 +167,17 @@ class Grid {
         let highlightY = Math.floor((this.mouseY - this.offsetY) / (20 * this.scale));
 
         if (highlightX >= 0 && highlightX < this.totalGridSquares && highlightY >= 0 && highlightY < this.totalGridSquares) {
-            this.ctx.fillStyle = this.getHighlightColor();
+            switch (this.selectedTool) {
+                case 'eraser':
+                    this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                    break;
+                case 'room':
+                    this.ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+                    break;
+                default:
+                    this.ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
+                    break;
+            }
             this.ctx.fillRect(highlightX * 20 * this.scale + this.offsetX, highlightY * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
         }
     }
@@ -189,12 +209,8 @@ class Grid {
             this.updateOffset(x - this.startPanX, y - this.startPanY);
             this.startPanX = x;
             this.startPanY = y;
+            this.drawGrid();
         }
-
-        this.mouseX = x;
-        this.mouseY = y;
-
-        this.drawGrid();
     }
 
     updateOffset(dx, dy) {
@@ -290,6 +306,7 @@ class Grid {
     setupCanvasEventListeners() {
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         this.canvas.addEventListener('mouseup', () => this.handleMouseUp());
+        this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
     }
 
     handleMouseDown(e) {
@@ -302,27 +319,37 @@ class Grid {
         }
     }
 
+
     handleMouseUp() {
-        this.isDrawing = false;
-        this.panEnd();
+        if (this.isDrawing && this.selectedTool === 'room') {
+            let gridX = this.temporaryRoomX;
+            let gridY = this.temporaryRoomY;
+
+            // Check if a room already exists at the specified grid coordinates
+            let existingRoom = this.rooms.find(room => room.gridX === gridX && room.gridY === gridY);
+            if (existingRoom) {
+                console.log(`Room already exists at (${gridX}, ${gridY})`);
+            } else {
+                let roomId = this.generateRoomId(); // Generate roomId
+                let zoneId = parseInt(this.zoneId, 10); // Ensure zoneId is an integer
+                let room = new Room(gridX, gridY, 1, roomId, zoneId); // Pass zoneId when creating the room
+                this.addRoom(room);
+            }
+            this.isDrawing = false;
+        } else if (this.isPanning) {
+            this.panEnd();
+        }
+        this.drawGrid(); // Redraw the grid to update the view
     }
+
 
     startDrawing(x, y) {
         this.isDrawing = true;
-        let gridX = Math.floor((x - this.offsetX) / (20 * this.scale));
-        let gridY = Math.floor((y - this.offsetY) / (20 * this.scale));
-
-        // Check if a room already exists at the specified grid coordinates
-        let existingRoom = this.rooms.find(room => room.gridX === gridX && room.gridY === gridY);
-        if (existingRoom) {
-            console.log(`Room already exists at (${gridX}, ${gridY})`);
-            return; // Do not create a new room if one already exists at these coordinates
-        }
-
-        let roomId = this.generateRoomId(); // Generate roomId
-        let zoneId = parseInt(this.zoneId, 10); // Ensure zoneId is an integer
-        let room = new Room(gridX, gridY, 1, roomId, zoneId); // Pass zoneId when creating the room
-        this.addRoom(room);
+        this.initialDrawX = x;
+        this.initialDrawY = y;
+        this.temporaryRoomX = Math.floor((x - this.offsetX) / (20 * this.scale));
+        this.temporaryRoomY = Math.floor((y - this.offsetY) / (20 * this.scale));
+        this.highlightTemporaryRoom();
     }
 
     eraseRoom(x, y) {
@@ -354,13 +381,27 @@ class Grid {
     }
 
     handleMouseMove(e) {
-        if (this.isDrawing) {
-            this.drawTemporaryRoom(e.clientX, e.clientY);
-        } else {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+
+        if (this.isDrawing && this.selectedTool === 'room') {
+            this.updateTemporaryRoom(e.clientX, e.clientY);
+        } else if (this.isPanning) {
             this.panMove(e.clientX, e.clientY);
+        } else {
+            this.drawGrid(); // Redraw the grid to clear previous highlights
+            this.highlightMouseSquare();
         }
         this.updateInfo(e.clientX, e.clientY);
     }
+
+    updateTemporaryRoom(x, y) {
+        this.temporaryRoomX = Math.floor((x - this.offsetX) / (20 * this.scale));
+        this.temporaryRoomY = Math.floor((y - this.offsetY) / (20 * this.scale));
+        this.drawGrid();
+        this.highlightTemporaryRoom();
+    }
+
 
     drawTemporaryRoom(x, y) {
         let roomX = Math.floor((x - this.offsetX) / (20 * this.scale));
@@ -368,6 +409,20 @@ class Grid {
         this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
         this.ctx.fillRect(roomX * 20 * this.scale + this.offsetX, roomY * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
     }
+
+    highlightTemporaryRoom() {
+        if (this.selectedTool === 'room') {
+            this.ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+            this.ctx.fillRect(
+                this.temporaryRoomX * 20 * this.scale + this.offsetX,
+                this.temporaryRoomY * 20 * this.scale + this.offsetY,
+                20 * this.scale,
+                20 * this.scale
+            );
+        }
+    }
+
+
 }
 
 let canvas = document.getElementById('canvas');
@@ -388,27 +443,43 @@ function openMenu() {
     menu.classList.toggle('hidden');
 }
 
-// Handle zoneId input changes
 function changeZoneId(input) {
-    let zoneIdValue = input.value;
-    if (zoneIdValue > 999 || zoneIdValue < -999) {
+    let zoneIdValue = parseInt(input.value, 10);
+    if (isNaN(zoneIdValue) || zoneIdValue > 999 || zoneIdValue < -999) {
         input.setCustomValidity("Invalid field.");
     } else {
         input.setCustomValidity("");
-        if ((zoneIdValue > -100 && zoneIdValue < 1000) || (zoneIdValue < 100 && zoneIdValue > -1000)) {
-            zoneIdValue = ('00' + zoneIdValue).slice(-3);
-            input.value = zoneIdValue;
-        }
+        input.value = zeroPad(zoneIdValue, 3);
     }
 }
 
-document.getElementById(
-    'zoneId'
-).addEventListener('change', function () {
-    grid.zoneId = this.value;
+function changeRoomId(input) {
+    let roomIdValue = parseInt(input.value, 10);
+    if (isNaN(roomIdValue) || roomIdValue > 999 || roomIdValue < -999) {
+        input.setCustomValidity("Invalid field.");
+    } else {
+        input.setCustomValidity("");
+        input.value = zeroPad(roomIdValue, 3);
+    }
+}
+
+function zeroPad(num, places) {
+    let absNum = Math.abs(num);
+    let sign = num < 0 ? '-' : '';
+    let zeroPadded = absNum.toString().padStart(places, '0');
+    return sign + zeroPadded;
+}
+
+document.getElementById('zoneId').addEventListener('change', function () {
+    changeZoneId(this);
+    grid.zoneId = parseInt(this.value, 10); // Update grid zoneId as an integer
     grid.drawGrid();
 });
 
+document.getElementById('startingRoomId').addEventListener('change', function () {
+    changeRoomId(this);
+    grid.startingRoomId = parseInt(this.value, 10); // Update grid startingRoomId as an integer
+});
 
 function debugRooms() {
     if (typeof grid !== 'undefined') {
