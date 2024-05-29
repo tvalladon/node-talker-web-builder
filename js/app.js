@@ -1,16 +1,55 @@
+class Room {
+    constructor(gridX, gridY, gridSize, roomId, zoneId) {
+        this.gridX = gridX;
+        this.gridY = gridY;
+        this.gridSize = gridSize;
+        this.roomId = roomId;
+        this.zoneId = parseInt(zoneId, 10);  // Ensure zoneId is stored as an integer
+        this.name = "";
+        this.description = "";
+        this.lockable = false;
+        this.locked = false;
+        this.whitelist = [];
+        this.temporary = false;
+        this.creator = "";
+        this.owner = "";
+        this.solo = true;
+        this.exits = {};
+        this.props = {};
+    }
+
+    draw(ctx, scale, offsetX, offsetY) {
+        ctx.fillStyle = 'rgb(180,180,180)';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 3;
+
+        let roomX = this.gridX * 20 * scale + offsetX;
+        let roomY = this.gridY * 20 * scale + offsetY;
+        let roomSize = this.gridSize * 20 * scale;
+
+        ctx.fillRect(roomX, roomY, roomSize, roomSize);
+        ctx.strokeRect(roomX, roomY, roomSize, roomSize);
+
+        ctx.fillStyle = 'black';
+        ctx.font = (0.8 * scale) + "px Arial";
+        const roomIdStr = String(this.roomId).padStart(3, '0');
+        const zoneIdStr = String(this.zoneId).padStart(3, '0'); // Zero-pad zoneId
+        const padding = 1 * scale; // Add padding
+        ctx.fillText(`${zoneIdStr}:${roomIdStr}`, roomX + padding, roomY + padding + ctx.measureText('M').width);
+        ctx.lineWidth = 1;
+    }
+}
+
 class Grid {
     constructor(canvas, ctx, totalGridSquares, scale) {
-        // This will store each room that is added.
-        this.rooms = [];
-
         this.canvas = canvas;
         this.ctx = ctx;
         this.totalGridSquares = totalGridSquares;
         this.scale = scale;
+        this.rooms = [];
 
-        // Start at the middle of the grid
-        this.offsetX = -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.width / (2 * 20 * scale));
-        this.offsetY = -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.height / (2 * 20 * scale));
+        this.offsetX = this.calculateOffsetX();
+        this.offsetY = this.calculateOffsetY();
 
         this.isPanning = false;
         this.startPanX = null;
@@ -22,117 +61,121 @@ class Grid {
         this.isDrawing = false;
         this.selectedTool = null;
 
-        this.startingRoomId = 1; // Default value
+        this.startingRoomId = 1;
         this.currentRoomId = this.startingRoomId;
+
+        this.setupEventListeners();
+    }
+
+    calculateOffsetX() {
+        return -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.width / (2 * 20 * this.scale));
+    }
+
+    calculateOffsetY() {
+        return -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.height / (2 * 20 * this.scale));
     }
 
     initializeGrid() {
         this.zoneId = document.getElementById('zoneId').value;
         this.scale = 1;
-        this.offsetX = -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.width / (2 * 20 * this.scale));
-        this.offsetY = -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.height / (2 * 20 * this.scale));
+        this.offsetX = this.calculateOffsetX();
+        this.offsetY = this.calculateOffsetY();
         this.drawGrid();
     }
 
     drawGrid() {
+        this.clearCanvas();
+        this.drawBackground();
+        this.drawRooms();
+        this.drawGridLines();
+        this.highlightMouseSquare();
+    }
+
+    clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    drawBackground() {
         this.ctx.fillStyle = '#333';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 
-        // Draw the rooms.
+    drawRooms() {
         for (let room of this.rooms) {
-            this.ctx.fillStyle = 'rgb(180,180,180)';  // Light grey fill color
-            this.ctx.strokeStyle = 'black';  // Black stroke color
-            this.ctx.lineWidth = 3;  // Increase border thickness
-
-            let roomX = room.gridX * 20 * this.scale + this.offsetX;
-            let roomY = room.gridY * 20 * this.scale + this.offsetY;
-            let roomSize = room.gridSize * 20 * this.scale;
-
-            this.ctx.fillRect(roomX, roomY, roomSize, roomSize);  // Fill room
-            this.ctx.strokeRect(roomX, roomY, roomSize, roomSize);  // Draw border around room
-
-            // Add room ID to room. Adjust coordinates as needed for the position.
-            this.ctx.fillStyle = 'black';  // Set text color to black
-            this.ctx.font = (0.8 * this.scale) + "px Arial";  // Set font size. Adjust as needed.
-
-            // Convert roomId to string for each room in the loop and pad it with 0s
-            const roomIdStr = String(room.roomId).padStart(3, '0');
-            this.ctx.fillText(`${grid.zoneId}:${roomIdStr}`, roomX, roomY + this.ctx.measureText('M').width);
+            room.draw(this.ctx, this.scale, this.offsetX, this.offsetY, this.zoneId);
         }
+    }
 
-        // Reset the lineWidth after drawing the rooms to avoid unwanted thick lines elsewhere
-        this.ctx.lineWidth = 1;
-
-        let highlightX = Math.floor((this.mouseX - this.offsetX) / (20 * this.scale));
-        let highlightY = Math.floor((this.mouseY - this.offsetY) / (20 * this.scale));
-
-        // Change the grid lines color to a color lighter than #333.
+    drawGridLines() {
         this.ctx.strokeStyle = '#444';
-
-        // Use a black color for the text in the 500,500 square
-        this.ctx.fillStyle = 'black';
-        this.ctx.fillText(`${500}, ${500}`, (20 * 500 + 15) * this.scale + this.offsetX, (20 * 500 + 18) * this.scale + this.offsetY);
-
-        this.ctx.fillStyle = '#fff'; // Set text color
-        this.ctx.font = (1 * this.scale) + "px Arial";
-
-        // Calculate range of cells in view horizontally
         let minGridX = Math.max(Math.floor((-this.offsetX) / (20 * this.scale)), 0);
         let maxGridX = Math.min(Math.ceil((this.canvas.width - this.offsetX) / (20 * this.scale)), this.totalGridSquares);
-
-        // Calculate range of cells in view vertically
         let minGridY = Math.max(Math.floor((-this.offsetY) / (20 * this.scale)), 0);
         let maxGridY = Math.min(Math.ceil((this.canvas.height - this.offsetY) / (20 * this.scale)), this.totalGridSquares);
 
-        // Only operate within those cells
         for (let i = minGridX; i < maxGridX; i++) {
             for (let j = minGridY; j < maxGridY; j++) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.offsetX, this.scale * 20 * j + this.offsetY);
-                this.ctx.lineTo(this.scale * 20 * this.totalGridSquares + this.offsetX, this.scale * 20 * j + this.offsetY);
-                this.ctx.stroke();
-
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.scale * 20 * i + this.offsetX, this.offsetY);
-                this.ctx.lineTo(this.scale * 20 * i + this.offsetX, this.scale * 20 * this.totalGridSquares + this.offsetY);
-                this.ctx.stroke();
-
-                let roomAtCurrentLocation = this.rooms.find(room => room.gridX === i && room.gridY === j);
-
-                // Only change the color at 500, 500 if there is not a room there
-                if (i == 500 && j == 500 && !roomAtCurrentLocation) {
-                    this.ctx.fillStyle = 'rgba(100, 100, 100, 1)';
-                    this.ctx.fillRect(i * 20 * this.scale + this.offsetX, j * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
-                }
-
-                // Only print labels when the scale is 5 or more
-                if (this.scale >= 5) {
-                    // Use a black color for the text in the 500,500 square
-                    if (i == 500 && j == 500) {
-                        this.ctx.fillStyle = 'black';
-                    } else {
-                        // Revert back to white for other squares
-                        this.ctx.fillStyle = 'white';
-                    }
-
-                    // this.ctx.fillText(`${i}, ${j}`, (20 * i + 15) * this.scale + this.offsetX, (20 * j + 18) * this.scale + this.offsetY);
-
-                }
+                this.drawGridLine(i, j);
+                this.drawLabels(i, j);
             }
         }
 
-        // Highlight the grid square under the mouse
+        // Drawing the special label at (500, 500)
+        if (this.scale >= 5) {
+            this.ctx.fillStyle = 'black';
+            this.ctx.font = `${1 * this.scale}px Arial`;
+            this.ctx.fillText(`500, 500`, (20 * 500 + 15) * this.scale + this.offsetX, (20 * 500 + 18) * this.scale + this.offsetY);
+        } else {
+            this.ctx.fillStyle = 'rgba(100, 100, 100, 1)';
+            this.ctx.fillRect(500 * 20 * this.scale + this.offsetX, 500 * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
+        }
+    }
+
+
+    drawGridLine(i, j) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.offsetX, this.scale * 20 * j + this.offsetY);
+        this.ctx.lineTo(this.scale * 20 * this.totalGridSquares + this.offsetX, this.scale * 20 * j + this.offsetY);
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.scale * 20 * i + this.offsetX, this.offsetY);
+        this.ctx.lineTo(this.scale * 20 * i + this.offsetX, this.scale * 20 * this.totalGridSquares + this.offsetY);
+        this.ctx.stroke();
+    }
+
+    drawLabels(i, j) {
+        if (this.scale >= 5) {
+            this.ctx.fillStyle = (i == 500 && j == 500) ? 'black' : 'white';
+            this.ctx.font = `${1 * this.scale}px Arial`;
+            this.ctx.fillText(`${i}, ${j}`, (20 * i + 15) * this.scale + this.offsetX, (20 * j + 18) * this.scale + this.offsetY);
+        }
+    }
+
+    highlightMouseSquare() {
+        let highlightX = Math.floor((this.mouseX - this.offsetX) / (20 * this.scale));
+        let highlightY = Math.floor((this.mouseY - this.offsetY) / (20 * this.scale));
+
         if (highlightX >= 0 && highlightX < this.totalGridSquares && highlightY >= 0 && highlightY < this.totalGridSquares) {
-            if (this.selectedTool === 'room') {
-                this.ctx.fillStyle = 'rgba(0, 255, 0, 0.5)'; // semi-transparent green
-            } else if (this.selectedTool === 'eraser') {
-                this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // semi-transparent red
-            } else {
-                this.ctx.fillStyle = 'rgba(255, 255, 0, 0.5)'; // semi-transparent yellow
-            }
+            this.ctx.fillStyle = this.getHighlightColor();
             this.ctx.fillRect(highlightX * 20 * this.scale + this.offsetX, highlightY * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
         }
+    }
+
+    getHighlightColor() {
+        switch (this.selectedTool) {
+            case 'room':
+                return 'rgba(0, 255, 0, 0.5)';
+            case 'eraser':
+                return 'rgba(255, 0, 0, 0.5)';
+            default:
+                return 'rgba(255, 255, 0, 0.5)';
+        }
+    }
+
+    drawCentralSquare() {
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillText(`${500}, ${500}`, (20 * 500 + 15) * this.scale + this.offsetX, (20 * 500 + 18) * this.scale + this.offsetY);
     }
 
     panStart(x, y) {
@@ -143,17 +186,7 @@ class Grid {
 
     panMove(x, y) {
         if (this.isPanning) {
-            let dx = x - this.startPanX;
-            let dy = y - this.startPanY;
-
-            // If movement will still be within canvas boundaries
-            if (this.offsetX + dx < this.canvas.width / 2 && this.offsetX + dx > -this.totalGridSquares * 20 * this.scale + this.canvas.width / 2) {
-                this.offsetX += dx;
-            }
-            if (this.offsetY + dy < this.canvas.height / 2 && this.offsetY + dy > -this.totalGridSquares * 20 * this.scale + this.canvas.height / 2) {
-                this.offsetY += dy;
-            }
-
+            this.updateOffset(x - this.startPanX, y - this.startPanY);
             this.startPanX = x;
             this.startPanY = y;
         }
@@ -162,6 +195,19 @@ class Grid {
         this.mouseY = y;
 
         this.drawGrid();
+    }
+
+    updateOffset(dx, dy) {
+        if (this.isWithinBounds(this.offsetX + dx, this.canvas.width)) {
+            this.offsetX += dx;
+        }
+        if (this.isWithinBounds(this.offsetY + dy, this.canvas.height)) {
+            this.offsetY += dy;
+        }
+    }
+
+    isWithinBounds(value, dimension) {
+        return value < dimension / 2 && value > -this.totalGridSquares * 20 * this.scale + dimension / 2;
     }
 
     panEnd() {
@@ -188,50 +234,139 @@ class Grid {
     }
 
     setupKeyListener() {
-        window.addEventListener('keydown', (e) => {
-            switch (e.key) {
-                case ' ':
-                    // this.scale = 1;
-                    this.offsetX = -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.width / (2 * 20 * this.scale));
-                    this.offsetY = -this.scale * 20 * (this.totalGridSquares / 2 - this.canvas.height / (2 * 20 * this.scale));
-                    this.drawGrid();
-                    break;
-                case 'Escape':
-                    // Set selected tool to null (no tool selected) when ESC key is pressed
-                    this.selectTool(null);
-                    break;
-            }
-        });
+        window.addEventListener('keydown', (e) => this.handleKeydown(e));
+    }
+
+    handleKeydown(e) {
+        switch (e.key) {
+            case ' ':
+                this.resetOffset();
+                this.drawGrid();
+                break;
+            case 'Escape':
+                this.selectTool(null);
+                break;
+        }
+    }
+
+    resetOffset() {
+        this.offsetX = this.calculateOffsetX();
+        this.offsetY = this.calculateOffsetY();
     }
 
     selectTool(tool) {
         this.selectedTool = tool;
     }
 
-    // When adding a room
     addRoom(room) {
-        let roomIds = this.rooms.map(room => room.roomId);
-        let newRoomId = this.currentRoomId;
-
-        for (let i = this.startingRoomId; i <= this.currentRoomId; i++) {
-            if (!roomIds.includes(i)) {
-                newRoomId = i;
-                break;
-            } else if (i === this.currentRoomId) {
-                newRoomId = ++this.currentRoomId;
-            }
-        }
-
-        room.roomId = newRoomId;
+        room.roomId = this.generateRoomId();
         this.rooms.push(room);
-
-        this.drawGrid(); // Redraw grid after adding room
+        this.drawGrid();
     }
 
-    // When removing a room by index
+    generateRoomId() {
+        let roomIds = this.rooms.map(room => room.roomId);
+        for (let i = this.startingRoomId; i <= this.currentRoomId; i++) {
+            if (!roomIds.includes(i)) {
+                return i;
+            }
+        }
+        return ++this.currentRoomId;
+    }
+
     removeRoom(index) {
         this.rooms.splice(index, 1);
-        this.drawGrid(); // Redraw grid after removing room
+        this.drawGrid();
+    }
+
+    setupEventListeners() {
+        this.setupKeyListener();
+        this.setupCanvasEventListeners();
+        this.setupToolEventListeners();
+        this.setupZoomEventListener();
+        this.setupMouseMoveListener();
+    }
+
+    setupCanvasEventListeners() {
+        this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        this.canvas.addEventListener('mouseup', () => this.handleMouseUp());
+    }
+
+    handleMouseDown(e) {
+        if (this.selectedTool === 'room') {
+            this.startDrawing(e.clientX, e.clientY);
+        } else if (this.selectedTool === 'eraser') {
+            this.eraseRoom(e.clientX, e.clientY);
+        } else {
+            this.panStart(e.clientX, e.clientY);
+        }
+    }
+
+    handleMouseUp() {
+        this.isDrawing = false;
+        this.panEnd();
+    }
+
+    startDrawing(x, y) {
+        this.isDrawing = true;
+        let gridX = Math.floor((x - this.offsetX) / (20 * this.scale));
+        let gridY = Math.floor((y - this.offsetY) / (20 * this.scale));
+
+        // Check if a room already exists at the specified grid coordinates
+        let existingRoom = this.rooms.find(room => room.gridX === gridX && room.gridY === gridY);
+        if (existingRoom) {
+            console.log(`Room already exists at (${gridX}, ${gridY})`);
+            return; // Do not create a new room if one already exists at these coordinates
+        }
+
+        let roomId = this.generateRoomId(); // Generate roomId
+        let zoneId = parseInt(this.zoneId, 10); // Ensure zoneId is an integer
+        let room = new Room(gridX, gridY, 1, roomId, zoneId); // Pass zoneId when creating the room
+        this.addRoom(room);
+    }
+
+    eraseRoom(x, y) {
+        let roomX = Math.floor((x - this.offsetX) / (20 * this.scale));
+        let roomY = Math.floor((y - this.offsetY) / (20 * this.scale));
+        let roomIndex = this.rooms.findIndex(room => room.gridX === roomX && room.gridY === roomY);
+        if (roomIndex > -1) {
+            this.removeRoom(roomIndex);
+        }
+    }
+
+    setupToolEventListeners() {
+        document.getElementById('roomShape').addEventListener('click', () => this.selectTool('room'));
+        document.getElementById('pointerIcon').addEventListener('click', () => this.selectTool(null));
+        document.getElementById('eraserIconContainer').addEventListener('click', () => this.selectTool('eraser'));
+    }
+
+    setupZoomEventListener() {
+        window.addEventListener('wheel', (e) => this.handleZoom(e));
+    }
+
+    handleZoom(e) {
+        this.zoom(e.deltaY);
+        this.updateInfo(e.x, e.y);
+    }
+
+    setupMouseMoveListener() {
+        window.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+    }
+
+    handleMouseMove(e) {
+        if (this.isDrawing) {
+            this.drawTemporaryRoom(e.clientX, e.clientY);
+        } else {
+            this.panMove(e.clientX, e.clientY);
+        }
+        this.updateInfo(e.clientX, e.clientY);
+    }
+
+    drawTemporaryRoom(x, y) {
+        let roomX = Math.floor((x - this.offsetX) / (20 * this.scale));
+        let roomY = Math.floor((y - this.offsetY) / (20 * this.scale));
+        this.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+        this.ctx.fillRect(roomX * 20 * this.scale + this.offsetX, roomY * 20 * this.scale + this.offsetY, 20 * this.scale, 20 * this.scale);
     }
 }
 
@@ -245,119 +380,21 @@ const totalGridSquares = 1000;
 const scale = 0.5;
 
 const grid = new Grid(canvas, ctx, totalGridSquares, scale);
-grid.setupKeyListener();
 grid.initializeGrid();
 
-// Here is a good place to put the event listener
-document.getElementById('roomShape').addEventListener('click', function () {
-    grid.selectTool('room');
-});
-
-document.getElementById('pointerIcon').addEventListener('click', function () {
-    grid.selectTool(null);  // No tool is selected, so it's in pan/scroll mode
-});
-
-document.getElementById('eraserIconContainer').addEventListener('click', function () {
-    grid.selectTool('eraser');
-});
-
-let toolIsActive = false;
-
-document.getElementById('toolPallet').addEventListener('mousedown', function (event) {
-    toolIsActive = true; // the mousedown event happened on the tool palette
-});
-
-// mousedown event handler
-window.addEventListener('mousedown', (e) => {
-    if (toolIsActive) {
-        toolIsActive = false; // Reset the flag
-        return; // Don't continue with the other mousedown logic
-    }
-
-    if (grid.selectedTool === 'room') {
-        grid.isDrawing = true;
-
-        // Calculate the grid coordinates where the mouse was clicked.
-        let gridX = Math.floor((e.clientX - grid.offsetX) / (20 * grid.scale));
-        let gridY = Math.floor((e.clientY - grid.offsetY) / (20 * grid.scale));
-
-        // Create a new room at the grid coordinates,
-        // with a size of one grid square.
-        let room = {
-            gridX: gridX,
-            gridY: gridY,
-            gridSize: 1
-        };
-        grid.addRoom(room);
-    } else if (grid.selectedTool === 'eraser') {
-        // Calculate the coordinates of the grid square under the mouse
-        let roomX = Math.floor((e.clientX - grid.offsetX) / (20 * grid.scale));
-        let roomY = Math.floor((e.clientY - grid.offsetY) / (20 * grid.scale));
-
-        // Find the room at this location, if any
-        let roomIndex = grid.rooms.findIndex(room => room.gridX === roomX && room.gridY === roomY);
-
-        // If a room is found, remove it from the grid's rooms array
-        if (roomIndex > -1) {
-            grid.removeRoom(roomIndex);
-        }
-    } else {
-        grid.panStart(e.clientX, e.clientY);
-    }
-});
-
-window.addEventListener('mouseup', () => {
-    grid.isDrawing = false;
-    grid.panEnd();
-});
-
-window.addEventListener('mousemove', (e) => {
-    if (grid.isDrawing) {
-        // Calculate the coordinates of the grid square under the mouse and draw room
-        let roomX = Math.floor((e.clientX - grid.offsetX) / (20 * grid.scale));  // replaced this with grid
-        let roomY = Math.floor((e.clientY - grid.offsetY) / (20 * grid.scale));  // replaced this with grid
-        grid.ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';  // replaced this.ctx with grid.ctx
-        grid.ctx.fillRect(roomX * 20 * grid.scale + grid.offsetX, roomY * 20 * grid.scale + grid.offsetY, 20 * grid.scale, 20 * grid.scale);
-    } else {
-        grid.panMove(e.clientX, e.clientY);
-    }
-
-    grid.updateInfo(e.clientX, e.clientY);
-    grid.drawGrid(e.clientX, e.clientY);
-});
-
-window.addEventListener('wheel', function (e) {
-    grid.zoom(e.deltaY);
-    grid.updateInfo(e.x, e.y);
-});
-
-grid.drawGrid();
-
-
-window.debugRooms = function () {
-    for (let room of grid.rooms) {
-        console.log(room);
-    }
-}
-
-// Function for hamburger menu
+// Hamburger menu function
 function openMenu() {
     var menu = document.getElementById('expanded-menu');
-    if (menu.classList.contains('hidden')) {
-        menu.classList.remove('hidden');
-    } else {
-        menu.classList.add('hidden');
-    }
+    menu.classList.toggle('hidden');
 }
 
-// Function to handle zoneId input changes
+// Handle zoneId input changes
 function changeZoneId(input) {
     let zoneIdValue = input.value;
     if (zoneIdValue > 999 || zoneIdValue < -999) {
         input.setCustomValidity("Invalid field.");
     } else {
         input.setCustomValidity("");
-        //Add leading zeros if the number is between -99 and 999 or 99 and -999
         if ((zoneIdValue > -100 && zoneIdValue < 1000) || (zoneIdValue < 100 && zoneIdValue > -1000)) {
             zoneIdValue = ('00' + zoneIdValue).slice(-3);
             input.value = zoneIdValue;
@@ -365,7 +402,18 @@ function changeZoneId(input) {
     }
 }
 
-document.getElementById('zoneId').addEventListener('change', function () {
+document.getElementById(
+    'zoneId'
+).addEventListener('change', function () {
     grid.zoneId = this.value;
     grid.drawGrid();
 });
+
+
+function debugRooms() {
+    if (typeof grid !== 'undefined') {
+        console.log(grid.rooms);
+    } else {
+        console.error('Grid is not defined');
+    }
+}
