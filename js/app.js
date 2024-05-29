@@ -13,7 +13,7 @@ class Room {
         this.temporary = false;
         this.creator = "";
         this.owner = "";
-        this.solo = true;
+        this.solo = false;
         this.exits = {};
         this.props = {};
     }
@@ -318,9 +318,88 @@ class Grid {
             this.startDrawing(e.clientX, e.clientY);
         } else if (this.selectedTool === 'eraser') {
             this.eraseRoom(e.clientX, e.clientY);
+        } else if (this.selectedTool === 'edit') {
+            this.editRoom(e.clientX, e.clientY);
         } else {
             this.panStart(e.clientX, e.clientY);
         }
+    }
+
+
+    editRoom(x, y) {
+        let gridX = Math.floor((x - this.offsetX) / (20 * this.scale));
+        let gridY = Math.floor((y - this.offsetY) / (20 * this.scale));
+
+        let room = this.rooms.find(room => room.gridX === gridX && room.gridY === gridY);
+        if (room) {
+            this.showEditForm(room);
+        }
+    }
+
+    showEditForm(room) {
+        // Format zoneId and roomId as zero-padded to 3 digits
+        const formattedZoneId = String(room.zoneId).padStart(3, '0');
+        const formattedRoomId = String(room.roomId).padStart(3, '0');
+
+        const formHtml = `
+        <div id="editFormContent">
+            <h3>Edit Room: ${formattedZoneId}:${formattedRoomId}</h3>
+            <label for="roomName">Name:</label>
+            <input type="text" id="roomName" value="${room.name}">
+            <label for="roomDescription">Description:</label>
+            <textarea id="roomDescription">${room.description}</textarea>
+            <label for="roomLockable">Lockable:</label>
+            <input type="checkbox" id="roomLockable" ${room.lockable ? 'checked' : ''}>
+            <label for="roomLocked">Locked:</label>
+            <input type="checkbox" id="roomLocked" ${room.locked ? 'checked' : ''}>
+            <label for="roomTemporary">Temporary:</label>
+            <input type="checkbox" id="roomTemporary" ${room.temporary ? 'checked' : ''}>
+            <label for="roomSolo">Solo:</label>
+            <input type="checkbox" id="roomSolo" ${room.solo ? 'checked' : ''}>
+            <label for="roomCreator">Creator:</label>
+            <input type="text" id="roomCreator" value="${room.creator}">
+            <label for="roomOwner">Owner:</label>
+            <input type="text" id="roomOwner" value="${room.owner}">
+            <!-- Placeholders for whitelist, props, and exits -->
+            <div id="whitelistPlaceholder">Whitelist: <em>Placeholder for whitelist</em></div>
+            <div id="propsPlaceholder">Props: <em>Placeholder for props</em></div>
+            <div id="exitsPlaceholder">Exits: <em>Placeholder for exits</em></div>
+            <button id="saveRoom">Save</button>
+            <button id="cancelEdit">Cancel</button>
+        </div>
+    `;
+
+        const slideOutForm = document.getElementById('slideOutForm');
+        slideOutForm.innerHTML = formHtml;
+        slideOutForm.classList.remove('hidden');
+        slideOutForm.classList.add('visible');
+
+        // Add event listeners for save and cancel buttons
+        document.getElementById('saveRoom').addEventListener('click', () => this.saveRoom(room));
+        document.getElementById('cancelEdit').addEventListener('click', () => this.closeEditForm());
+    }
+
+
+    saveRoom(room) {
+        room.name = document.getElementById('roomName').value;
+        room.description = document.getElementById('roomDescription').value;
+        room.lockable = document.getElementById('roomLockable').checked;
+        room.locked = document.getElementById('roomLocked').checked;
+        room.temporary = document.getElementById('roomTemporary').checked;
+        room.solo = document.getElementById('roomSolo').checked || false;  // Default to false
+        room.creator = document.getElementById('roomCreator').value;
+        room.owner = document.getElementById('roomOwner').value;
+
+        this.drawGrid(); // Redraw the grid to reflect changes
+        this.closeEditForm();
+    }
+
+
+    closeEditForm() {
+        const slideOutForm = document.getElementById('slideOutForm');
+        slideOutForm.classList.remove('visible');
+        slideOutForm.classList.add('hidden');
+        slideOutForm.innerHTML = ''; // Clear form content
     }
 
 
@@ -428,7 +507,12 @@ class Grid {
             );
         }
     }
-
+    
+    updateAllRoomZoneIds(newZoneId) {
+        this.rooms.forEach(room => {
+            room.zoneId = newZoneId;
+        });
+    }
 
 }
 
@@ -457,8 +541,12 @@ function changeZoneId(input) {
     } else {
         input.setCustomValidity("");
         input.value = zeroPad(zoneIdValue, 3);
+        grid.updateAllRoomZoneIds(zoneIdValue);
+        grid.zoneId = zoneIdValue;
+        grid.drawGrid(); // Redraw the grid to reflect the updated zone IDs
     }
 }
+
 
 function changeRoomId(input) {
     let roomIdValue = parseInt(input.value, 10);
