@@ -146,7 +146,7 @@ class Grid {
 
     drawLabels(i, j) {
         if (this.scale >= 5) {
-            this.ctx.fillStyle = (i == 500 && j == 500) ? 'black' : 'white';
+            this.ctx.fillStyle =  'rgba(100, 100, 100, 1)';
             this.ctx.font = `${1 * this.scale}px Arial`;
             this.ctx.fillText(`${i}, ${j}`, (20 * i + 15) * this.scale + this.offsetX, (20 * j + 18) * this.scale + this.offsetY);
         }
@@ -230,7 +230,7 @@ class Grid {
     updateInfo(x, y) {
         let gridX = Math.floor((x - this.offsetX) / (20 * this.scale));
         let gridY = Math.floor((y - this.offsetY) / (20 * this.scale));
-        document.getElementById('info').textContent = `x:${gridX} y:${gridY} s:${this.scale.toFixed(2)}`;
+        document.getElementById('info').textContent = `X ${gridX} Y ${gridY}`;// s:${this.scale.toFixed(2)}`;
     }
 
     setupKeyListener() {
