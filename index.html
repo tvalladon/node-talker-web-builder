@@ -1,52 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node Talker Web Builder Tool</title>
     <link rel="stylesheet" type="text/css" href="css/styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/konva@8.3.0/konva.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/konva@9/konva.min.js" defer></script>
+    <script src="js/app.js" defer></script>
 </head>
+
 <body>
-<!-- Konva Container -->
-<div id="konva-container"></div>
+    <!-- Konva Container -->
+    <div id="konva-container"></div>
 
-<!-- Hamburger -->
-<div id="hamburger-menu" class="fa fa-bars" onclick="openMenu()"></div>
+    <!-- Hamburger Menu -->
+    <div id="hamburger-menu" class="fa fa-bars" onclick="openMenu()"></div>
 
-<!-- Cords display -->
-<div id="info" style="position: fixed; top: 10px; right: 10px;"></div>
+    <!-- Coordinates Display -->
+    <div id="info" style="position: fixed; top: 10px; right: 10px;"></div>
 
-<!-- Tool pallet -->
-<div id="toolPallet" style="position: fixed; bottom: 10px; right: 10px; display: flex;">
-    <div id="pointerIconContainer">
-        <i id="pointerIcon" class="fas fa-hand-pointer"></i>
+    <!-- Tool Pallet -->
+    <div id="toolPallet" style="position: fixed; bottom: 10px; right: 10px; display: flex;">
+        <div id="pointerIconContainer">
+            <i id="pointerIcon" class="fas fa-hand-pointer"></i>
+        </div>
+        <div id="eraserIconContainer">
+            <i id="eraserIcon" class="fas fa-eraser"></i>
+        </div>
+        <div id="penIconContainer">
+            <i id="penIcon" class="fas fa-pen"></i>
+        </div>
+        <div id="roomShapeContainer">
+            <i id="roomShape" class="fas fa-vector-square"></i>
+        </div>
     </div>
-    <div id="eraserIconContainer">
-        <i id="eraserIcon" class="fas fa-eraser"></i>
-    </div>
-    <div id="penIconContainer">
-        <i id="penIcon" class="fas fa-pen"></i>
-    </div>
-    <div id="roomShapeContainer">
-        <i id="roomShape" class="fas fa-vector-square"></i>
-    </div>
-</div>
 
-<div id="expanded-menu" class="hidden">
-    <div class="menu-item">
-        <input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001"/> : <input
-            type="number" id="startingRoomId" onchange="changeRoomId(this)" min="-999" max="999" value="001">
+    <!-- Expanded Menu -->
+    <div id="expanded-menu" class="hidden">
+        <div class="menu-item">
+            <input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001">
+            :
+            <input type="number" id="startingRoomId" onchange="changeRoomId(this)" min="-999" max="999" value="001">
+        </div>
+        <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>
+        <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>
+        <!-- Add more items here -->
     </div>
-    <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>
-    <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>
-    <!-- Add more items here -->
-</div>
 
-<div id="slideOutForm" class="hidden">
-    <!-- Form content will be dynamically inserted here -->
-</div>
-
-
-<script src="js/app.js"></script>
+    <!-- Slide-Out Form -->
+    <div id="slideOutForm" class="hidden">
+        <!-- Form content will be dynamically inserted here -->
+    </div>
 </body>
+
 </html>
