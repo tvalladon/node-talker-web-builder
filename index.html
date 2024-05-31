@@ -46,9 +46,8 @@
     <!-- Expanded Menu -->
     <div id="expanded-menu" class="hidden">
         <div class="menu-item">
-            <input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001">
-            :
-            <input type="number" id="startingRoomId" onchange="changeRoomId(this)" min="-999" max="999" value="001">
+            <label for="zoneId"></label><input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001">
+            <label for="startingRoomId">:</label> <input type="number" id="startingRoomId" onchange="changeRoomId(this)" min="-999" max="999" value="001">
         </div>
         <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>
         <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>
@@ -66,11 +65,11 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Help Information</h2>
-            <p><iß class="fas fa-hand-pointer"></iß> Pan/Zoom</p>
-            <p><iß class="fas fa-vector-square"></iß> Create</p>
-            <p><iß class="fas fa-pen"></iß> Edit</p>
-            <p><iß class="fas fa-eraser"></iß> Erase</p>
-            <p><iß class="fas fa-question"></iß> Help</p>
+            <p><i class="fas fa-hand-pointer"></i> Pan/Zoom</p>
+            <p><i class="fas fa-vector-square"></i> Create</p>
+            <p><i class="fas fa-pen"></i> Edit</p>
+            <p><i class="fas fa-eraser"></i> Erase</p>
+            <p><i class="fas fa-question"></i> Help</p>
             <p>Press [ESC] to return to Pan tool.</p>
             <p>Press [TAB] to cycle through tools.</p>
             <p>Press [SPACE] to zoom in and out from mouse location.</p>
