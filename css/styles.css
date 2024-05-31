@@ -138,12 +138,7 @@ body {
     margin-top: 10px;
 }
 
-#slideOutForm input[typexx`
-
-=
-"text"
-]
-,
+#slideOutForm input[type="text"],
 #slideOutForm textarea {
     width: 100%;
     margin-top: 5px;
