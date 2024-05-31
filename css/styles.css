@@ -23,7 +23,6 @@ body {
     border: 1px solid #aaa; /* Changed from #000 */
     background-color: #f8f8f8;
     border-radius: 5px; /* New border radius */
-    transition: background-color 0.3s ease; /* New transition */
 }
 
 #info:hover {
@@ -44,8 +43,8 @@ body {
 #toolPallet div {
     margin-right: 10px;
     padding: 10px; /* New padding */
-    transition: all 0.5s ease;
     background-color: #f2f2f2; /* Background color for icon */
+    border: 2px solid #f2f2f2; /* Border to make it more noticeable */
     border-radius: 5px; /* Border radius for icon */
     font-size: 20px;
     display: flex;
@@ -55,6 +54,11 @@ body {
 
 #toolPallet div:hover {
     filter: invert(1);
+}
+
+#toolPallet div.active {
+    background-color: #d2d2d2; /* Highlight color */
+    border: 2px solid #888; /* Border to make it more noticeable */
 }
 
 /* Hamburger menu */
@@ -68,7 +72,6 @@ body {
     color: #000;
     padding: 10px; /* Increased padding */
     border-radius: 5px; /* New border radius */
-    transition: background-color 0.3s ease; /* New transition */
 }
 
 #hamburger-menu:hover {
@@ -92,7 +95,6 @@ body {
     padding: 10px;
     cursor: pointer;
     border-bottom: 1px solid #ccc;
-    transition: background-color 0.3s ease; /* Hover transition */
     text-align: center;
 }
 
@@ -118,7 +120,6 @@ body {
     height: 100%;
     background-color: #fff;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-    transition: right 0.3s ease;
     z-index: 1000;
     padding: 20px;
     overflow-y: auto;
@@ -137,7 +138,12 @@ body {
     margin-top: 10px;
 }
 
-#slideOutForm input[type="text"],
+#slideOutForm input[typexx`
+
+=
+"text"
+]
+,
 #slideOutForm textarea {
     width: 100%;
     margin-top: 5px;
@@ -164,4 +170,52 @@ body {
 .exit-row i {
     cursor: pointer;
     margin-left: 5px;
+}
+
+/* Modal Container */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 100; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.modal-content .fas {
+    margin-right: 10px;
+    padding: 10px; /* New padding */
+    background-color: #f2f2f2; /* Background color for icon */
+    border: 2px solid #f2f2f2; /* Border to make it more noticeable */
+    border-radius: 5px; /* Border radius for icon */
+    font-size: 20px;
+    justify-content: center;
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
