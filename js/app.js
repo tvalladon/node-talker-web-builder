@@ -73,8 +73,8 @@ class Grid {
 
         this.drawBackground();
         this.drawGridLines();
-        this.drawConnections();
         this.drawRooms();
+        this.drawConnections();
 
         if (this.isDrawing && this.selectedTool === 'room') {
             this.highlightTemporaryRoom();
@@ -234,7 +234,7 @@ class Grid {
                 return 'rgba(0, 255, 0, 0.5)';
             case 'edit':
                 return 'rgba(0, 0, 255, 0.5)';
-            default:
+            case 'pan':
                 return 'rgba(255, 255, 0, 0.5)';
         }
     }
@@ -303,7 +303,24 @@ class Grid {
                 this.drawGrid();
                 break;
             case 'Escape':
-                this.selectTool(null);
+                this.selectTool('pan');
+                break;
+            case 'Tab':
+                e.preventDefault();
+                switch (this.selectedTool) {
+                    case 'pan':
+                        this.selectTool('room');
+                        break;
+                    case 'room':
+                        this.selectTool('edit');
+                        break;
+                    case 'edit':
+                        this.selectTool('eraser');
+                        break;
+                    case 'eraser':
+                        this.selectTool("pan");
+                        break;
+                }
                 break;
         }
     }
@@ -404,7 +421,7 @@ class Grid {
             case 'edit':
                 this.editRoom(x, y);
                 break;
-            default:
+            case 'pan':
                 this.panStart(x, y);
                 break;
         }
@@ -673,7 +690,7 @@ class Grid {
         if (pointerIcon) {
             pointerIcon.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.selectTool(null);
+                this.selectTool('pan');
             });
         }
 
@@ -776,31 +793,6 @@ class Grid {
         });
     }
 
-    drawConnections() {
-        for (let room of this.rooms) {
-            const sourceId = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
-            Object.entries(room.exits).forEach(([direction, targetId]) => {
-                const targetRoom = this.rooms.find(r => `${String(r.zoneId).padStart(3, '0')}:${String(r.roomId).padStart(3, '0')}` === targetId);
-                if (targetRoom) {
-                    const reverseDirection = this.getReverseDirection(direction);
-                    const reciprocal = targetRoom.exits[reverseDirection] === sourceId;
-                    let color = reciprocal ? 'black' : 'yellow';
-                    if (sourceId === targetId) color = 'red';
-
-                    const line = new Konva.Line({
-                        points: this.getLinePoints(room, targetRoom, direction),
-                        stroke: color,
-                        strokeWidth: 3 * this.scale, // Adjust line width based on scale
-                        lineCap: 'round',
-                        lineJoin: 'round',
-                    });
-                    layer.add(line);
-                }
-            });
-        }
-        layer.draw();
-    }
-
     getLinePoints(sourceRoom, targetRoom, direction) {
         const sourceX = sourceRoom.gridX * 20 * this.scale + this.offsetX + 10 * this.scale;
         const sourceY = sourceRoom.gridY * 20 * this.scale + this.offsetY + 10 * this.scale;
@@ -829,6 +821,31 @@ class Grid {
             default:
                 return [sourceX, sourceY, targetX, targetY];
         }
+    }
+
+    drawConnections() {
+        for (let room of this.rooms) {
+            const sourceId = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+            Object.entries(room.exits).forEach(([direction, targetId]) => {
+                const targetRoom = this.rooms.find(r => `${String(r.zoneId).padStart(3, '0')}:${String(r.roomId).padStart(3, '0')}` === targetId);
+                if (targetRoom) {
+                    const reverseDirection = this.getReverseDirection(direction);
+                    const reciprocal = targetRoom.exits[reverseDirection] === sourceId;
+                    let color = reciprocal ? 'black' : 'yellow';
+                    if (sourceId === targetId) color = 'red';
+
+                    const line = new Konva.Line({
+                        points: this.getLinePoints(room, targetRoom, direction),
+                        stroke: color,
+                        strokeWidth: 3 * this.scale, // Adjust line width based on scale
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                    });
+                    layer.add(line);
+                }
+            });
+        }
+        layer.draw();
     }
 }
 
@@ -874,6 +891,9 @@ grid.initializeGrid();
 
 // Handle window resize
 window.addEventListener('resize', () => grid.handleResize());
+
+// Set the pan too to the selected tool on load
+grid.selectTool('pan');
 
 // Hamburger menu function
 function openMenu() {
