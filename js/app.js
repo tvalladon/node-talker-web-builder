@@ -289,6 +289,10 @@ class Grid {
     }
 
     handleKeydown(e) {
+        if (this.isEditFormOpen()) {
+            return; // If the edit form is open, do nothing
+        }
+
         switch (e.key) {
             case ' ':
                 if (this.scale >= 30) {
@@ -695,6 +699,11 @@ class Grid {
         }
     }
 
+    isEditFormOpen() {
+        const slideOutForm = document.getElementById('slideOutForm');
+        return slideOutForm && slideOutForm.classList.contains('visible');
+    }
+
     setupZoomEventListener() {
         stage.on('wheel', (e) => this.handleZoom(e));
     }
@@ -775,7 +784,7 @@ class Grid {
                 if (targetRoom) {
                     const reverseDirection = this.getReverseDirection(direction);
                     const reciprocal = targetRoom.exits[reverseDirection] === sourceId;
-                    let color = reciprocal ? 'green' : 'yellow';
+                    let color = reciprocal ? 'black' : 'yellow';
                     if (sourceId === targetId) color = 'red';
 
                     const line = new Konva.Line({
