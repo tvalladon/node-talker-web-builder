@@ -24,20 +24,15 @@ class Grid {
         this.totalGridSquares = totalGridSquares;
         this.scale = scale;
         this.rooms = [];
-
         this.offsetX = this.calculateOffsetX();
         this.offsetY = this.calculateOffsetY();
-
         this.isPanning = false;
         this.startPanX = null;
         this.startPanY = null;
-
         this.mouseX = 0;
         this.mouseY = 0;
-
         this.isDrawing = false;
         this.selectedTool = null;
-
         this.startingRoomId = 1;
         this.currentRoomId = this.startingRoomId;
 
@@ -296,13 +291,32 @@ class Grid {
     handleKeydown(e) {
         switch (e.key) {
             case ' ':
-                this.resetOffset();
+                if (this.scale >= 30) {
+                    this.zoomToMouse(1);
+                } else {
+                    this.zoomToMouse(30);
+                }
                 this.drawGrid();
                 break;
             case 'Escape':
                 this.selectTool(null);
                 break;
         }
+    }
+
+    zoomToMouse(targetScale) {
+        const oldScale = this.scale;
+        const pointer = stage.getPointerPosition();
+
+        const mousePointTo = {
+            x: (pointer.x - this.offsetX) / oldScale,
+            y: (pointer.y - this.offsetY) / oldScale,
+        };
+
+        this.scale = targetScale;
+
+        this.offsetX = pointer.x - mousePointTo.x * this.scale;
+        this.offsetY = pointer.y - mousePointTo.y * this.scale;
     }
 
     resetOffset() {
@@ -312,6 +326,26 @@ class Grid {
 
     selectTool(tool) {
         this.selectedTool = tool;
+
+        const tools = document.querySelectorAll('#toolPallet div');
+        tools.forEach(toolDiv => {
+            toolDiv.classList.remove('active');
+        });
+
+        switch (tool) {
+            case 'room':
+                document.getElementById('roomShapeContainer').classList.add('active');
+                break;
+            case 'eraser':
+                document.getElementById('eraserIconContainer').classList.add('active');
+                break;
+            case 'edit':
+                document.getElementById('penIconContainer').classList.add('active');
+                break;
+            default:
+                document.getElementById('pointerIconContainer').classList.add('active');
+                break;
+        }
     }
 
     addRoom(room) {
@@ -619,10 +653,46 @@ class Grid {
     }
 
     setupToolEventListeners() {
-        document.getElementById('roomShape').addEventListener('click', () => this.selectTool('room'));
-        document.getElementById('pointerIcon').addEventListener('click', () => this.selectTool(null));
-        document.getElementById('eraserIconContainer').addEventListener('click', () => this.selectTool('eraser'));
-        document.getElementById('penIconContainer').addEventListener('click', () => this.selectTool('edit'));
+        const roomShape = document.getElementById('roomShapeContainer');
+        const pointerIcon = document.getElementById('pointerIconContainer');
+        const eraserIconContainer = document.getElementById('eraserIconContainer');
+        const penIconContainer = document.getElementById('penIconContainer');
+        const helpIconContainer = document.getElementById('helpIconContainer');
+
+        if (roomShape) {
+            roomShape.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.selectTool('room');
+            });
+        }
+
+        if (pointerIcon) {
+            pointerIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.selectTool(null);
+            });
+        }
+
+        if (eraserIconContainer) {
+            eraserIconContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.selectTool('eraser');
+            });
+        }
+
+        if (penIconContainer) {
+            penIconContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.selectTool('edit');
+            });
+        }
+
+        if (helpIconContainer) {
+            helpIconContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+            });
+        }
     }
 
     setupZoomEventListener() {
@@ -753,6 +823,29 @@ class Grid {
     }
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const helpModal = document.getElementById("helpModal");
+    const helpIcon = document.getElementById("helpIcon");
+    const closeModal = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the help icon, open the modal
+    helpIcon.onclick = function () {
+        helpModal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    closeModal.onclick = function () {
+        helpModal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == helpModal) {
+            helpModal.style.display = "none";
+        }
+    }
+});
+
 // Initialize Konva
 const stage = new Konva.Stage({
     container: 'konva-container', // Use the ID of your Konva div container
@@ -829,6 +922,14 @@ function debugRooms() {
 }
 
 function jsonRooms() {
+    if (typeof grid !== 'undefined') {
+        console.log(JSON.stringify(grid.rooms));
+    } else {
+        console.log("Grid is not defined");
+    }
+}
+
+function packRooms() {
     if (typeof grid !== 'undefined') {
         console.log(JSON.stringify(grid.rooms));
     } else {
