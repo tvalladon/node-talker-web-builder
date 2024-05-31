@@ -35,6 +35,9 @@
         <div id="roomShapeContainer">
             <i id="roomShape" class="fas fa-vector-square"></i>
         </div>
+        <div id="helpIconContainer">
+            <i id="helpIcon" class="fas fa-question"></i>
+        </div>
     </div>
 
     <!-- Expanded Menu -->
@@ -46,12 +49,26 @@
         </div>
         <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>
         <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>
+        <div id="pack" class="menu-item" onclick="packRooms()">PACK</div>
         <!-- Add more items here -->
     </div>
 
     <!-- Slide-Out Form -->
     <div id="slideOutForm" class="hidden">
         <!-- Form content will be dynamically inserted here -->
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Help Information</h2>
+            <p><i id="pointerIcon" class="fas fa-hand-pointer"></i> Pan/Zoom</p>
+            <p><i id="eraserIcon" class="fas fa-eraser"></i> Erase</p>
+            <p><i id="penIcon" class="fas fa-pen"></i> Edit</p>
+            <p><i id="roomShape" class="fas fa-vector-square"></i> Create</p>
+            <p><i id="helpIcon" class="fas fa-question"></i> Help</p>
+        </div>
     </div>
 </body>
 
