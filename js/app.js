@@ -1236,6 +1236,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+document.getElementById('startingRoomId').addEventListener('change', function () {
+    changeRoomId(this);
+    grid.startingRoomId = parseInt(this.value, 10); // Update grid startingRoomId as an integer
+});
+
+document.getElementById('zoneId').addEventListener('change', function () {
+    changeZoneId(this);
+    grid.zoneId = parseInt(this.value, 10); // Update grid zoneId as an integer
+    grid.drawGrid();
+});
+
 // Initialize Konva
 const stage = new Konva.Stage({
     container: 'konva-container', // Use the ID of your Konva div container
@@ -1259,12 +1270,13 @@ window.addEventListener('resize', () => grid.handleResize());
 // Set the pan too to the selected tool on load
 grid.selectTool('pan');
 
-// Hamburger menu function
-function openMenu() {
-    var menu = document.getElementById('expanded-menu');
-    menu.classList.toggle('hidden');
-}
-
+/**
+ * Changes the room ID value of an input field.
+ *
+ * @param {HTMLElement} input - The input field element to change the room ID value for.
+ *
+ * @return {void} - This method does not return a value.
+ */
 function changeRoomId(input) {
     let roomIdValue = parseInt(input.value, 10);
     if (isNaN(roomIdValue) || roomIdValue > 999 || roomIdValue < -999) {
@@ -1275,17 +1287,12 @@ function changeRoomId(input) {
     }
 }
 
-document.getElementById('zoneId').addEventListener('change', function () {
-    changeZoneId(this);
-    grid.zoneId = parseInt(this.value, 10); // Update grid zoneId as an integer
-    grid.drawGrid();
-});
-
-document.getElementById('startingRoomId').addEventListener('change', function () {
-    changeRoomId(this);
-    grid.startingRoomId = parseInt(this.value, 10); // Update grid startingRoomId as an integer
-});
-
+/**
+ * Updates the zone ID for a given input field, and performs various additional actions if the zone ID is valid.
+ *
+ * @param {HTMLInputElement} input - The input field to update the zone ID for.
+ * @return {void}
+ */
 function changeZoneId(input) {
     let zoneIdValue = parseInt(input.value, 10);
     if (isNaN(zoneIdValue) || zoneIdValue > 999 || zoneIdValue < -999) {
@@ -1323,6 +1330,16 @@ function jsonRooms() {
     } else {
         console.log("Grid is not defined");
     }
+}
+
+/**
+ * Toggles the visibility of the menu by adding or removing the 'hidden' class.
+ *
+ * @return {undefined}
+ */
+function openMenu() {
+    var menu = document.getElementById('expanded-menu');
+    menu.classList.toggle('hidden');
 }
 
 /**
