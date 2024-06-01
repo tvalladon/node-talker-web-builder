@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/konva/9.0.0/konva.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="js/app.js" defer></script>
 </head>
 
@@ -49,9 +50,11 @@
             <label for="zoneId"></label><input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001">
             <label for="startingRoomId">:</label> <input type="number" id="startingRoomId" onchange="changeRoomId(this)" min="-999" max="999" value="001">
         </div>
-        <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>
-        <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>
-        <div id="pack" class="menu-item" onclick="packRooms()">PACK</div>
+<!--        <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>-->
+<!--        <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>-->
+        <div id="save" class="menu-item" onclick="saveMap()">SAVE MAP</div>
+        <div id="load" class="menu-item" onclick="loadMap()">LOAD MAP</div>
+        <div id="process" class="menu-item" onclick="processMap()">PROCESS MAP</div>
         <!-- Add more items here -->
     </div>
 

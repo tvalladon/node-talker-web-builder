@@ -431,7 +431,7 @@ class Grid {
             // Remove any exits that point to this room
             this.rooms.forEach(room => {
                 Object.keys(room.exits).forEach(exit => {
-                    if(room.exits[exit] === `${zeroPad(zoneId, 3)}:${zeroPad(roomId, 3)}`) {
+                    if (room.exits[exit] === `${zeroPad(zoneId, 3)}:${zeroPad(roomId, 3)}`) {
                         delete room.exits[exit];
                     }
                 });
@@ -1306,7 +1306,7 @@ grid.selectTool('pan');
  *
  * @return {void} - This method does not return a value.
  */
-function changeRoomId(input) {
+const changeRoomId = (input) => {
     let roomIdValue = parseInt(input.value, 10);
     if (isNaN(roomIdValue) || roomIdValue > 999 || roomIdValue < -999) {
         input.setCustomValidity("Invalid field.");
@@ -1314,7 +1314,7 @@ function changeRoomId(input) {
         input.setCustomValidity("");
         input.value = zeroPad(roomIdValue, 3);
     }
-}
+};
 
 /**
  * Updates the zone ID for a given input field, and performs various additional actions if the zone ID is valid.
@@ -1322,7 +1322,7 @@ function changeRoomId(input) {
  * @param {HTMLInputElement} input - The input field to update the zone ID for.
  * @return {void}
  */
-function changeZoneId(input) {
+const changeZoneId = (input) => {
     let zoneIdValue = parseInt(input.value, 10);
     if (isNaN(zoneIdValue) || zoneIdValue > 999 || zoneIdValue < -999) {
         input.setCustomValidity("Invalid field.");
@@ -1333,56 +1333,143 @@ function changeZoneId(input) {
         grid.zoneId = zoneIdValue;
         grid.drawGrid(); // Redraw the grid to reflect the updated zone IDs
     }
-}
+};
+
+/**
+ * Removes specified values from an array.
+ *
+ * @param {Array} array - The input array to be filtered.
+ * @param {...*} values - The values to be excluded from the array.
+ * @returns {Array} - A new array with the specified values removed.
+ */
+const exclude = (array, ...values) => {
+    return array.filter(item => !values.includes(item));
+};
 
 /**
  * Logs the room information from the grid object.
  *
  * @return {undefined}
  */
-function debugRooms() {
+const debugRooms = () => {
     if (typeof grid !== 'undefined') {
         console.log(grid.rooms);
     } else {
         console.log("Grid is not defined");
     }
-}
+};
 
 /**
  * Retrieves JSON representation of rooms from the grid object.
  *
  * @return {void}
  */
-function jsonRooms() {
+const jsonRooms = () => {
     if (typeof grid !== 'undefined') {
         console.log(JSON.stringify(grid.rooms));
     } else {
         console.log("Grid is not defined");
     }
 }
+
+
+/**
+ * Function to load a map from a JSON file.
+ * The function creates an input element of type 'file' and accepts JSON files only.
+ * On change of the input element, the function reads the selected file and attempts to parse it as JSON.
+ * If successful, the function assigns the parsed data to the 'rooms' property of the 'grid' object and displays a success message.
+ * If unable to parse the file as JSON, an error message is displayed.
+ */
+const loadMap = () => {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/map';
+
+    input.onchange = (event) => {
+        let file = event.target.files[0];
+        let reader = new FileReader();
+
+        reader.onload = (readerEvent) => {
+            try {
+                let data = JSON.parse(readerEvent.target.result);
+                grid.rooms = data;
+                if(grid.rooms[0].zoneId) {
+                    document.getElementById("zoneId").value = zeroPad(grid.rooms[0].zoneId, 3);
+                }
+                grid.drawRooms();
+            } catch (error) {
+                alert("Error loading file: " + error.message);
+            }
+        };
+
+        reader.readAsText(file);
+    };
+
+    input.click();
+};
 
 /**
  * Toggles the visibility of the menu by adding or removing the 'hidden' class.
  *
  * @return {undefined}
  */
-function openMenu() {
+const openMenu = () => {
     var menu = document.getElementById('expanded-menu');
     menu.classList.toggle('hidden');
-}
+};
 
 /**
- * This method is used to pack rooms.
- *
- * @return {undefined} - This method does not return a value.
+ * This function generates a zip file containing JSON files for each room in the grid.
+ * It deep copies the grid.rooms data, removes unnecessary fields, and creates a JSON file for each room.
+ * The generated zip file is then downloaded by creating a link element and clicking it.
  */
-function packRooms() {
+const processMap = () => {
+    let zip = new JSZip();
+
+    // Deep copy grid.rooms
+    let roomsData = JSON.parse(JSON.stringify(grid.rooms));
+
+    roomsData.forEach(room => {
+        ['gridX','gridY','gridSize','rect','text'].forEach(key => delete room[key]);
+
+        // Create a JSON file for each room and add it to the zip
+        zip.file(`${zeroPad(room.zoneId, 3)}:${zeroPad(room.roomId, 3)}.json`, JSON.stringify(room));
+    });
+
+    zip.generateAsync({type:"blob"})
+        .then(function(content) {
+            // Create a link and click it to download the zip file
+            let link = document.createElement('a');
+            link.download = `${zeroPad(grid.rooms[0].zoneId, 3)}.zip`;
+            link.href = URL.createObjectURL(content);
+            link.click();
+        });
+};
+
+/**
+ * Saves the current rooms data to a file.
+ * This function deep copies the room data from the global variable `grid`,
+ * and saves it as a JSON file with a specified filename.
+ *
+ * If the `grid` variable is not defined, an error message is logged to the console.
+ */
+const saveMap = () => {
     if (typeof grid !== 'undefined') {
-        console.log(JSON.stringify(grid.rooms));
+        // Deepcopy the room data
+        let mapData = JSON.parse(JSON.stringify(grid.rooms));
+
+        let data = JSON.stringify(mapData, null, 2);
+        let blob = new Blob([data], {type: 'application/json'});
+        let url = URL.createObjectURL(blob);
+
+        let link = document.createElement('a');
+        link.download = `zone_${document.getElementById("zoneId").value}.map`;
+        link.href = url;
+        link.click();
     } else {
-        console.log("Grid is not defined");
+        alert("Grid is not defined");
     }
-}
+};
 
 /**
  * Pads a number with leading zeros to a specified number of places.
@@ -1391,9 +1478,9 @@ function packRooms() {
  * @param {number} places - The number of places to pad to.
  * @return {string} - The padded number as a string.
  */
-function zeroPad(num, places) {
+const zeroPad = (num, places) => {
     let absNum = Math.abs(num);
     let sign = num < 0 ? '-' : '';
     let zeroPadded = absNum.toString().padStart(places, '0');
     return sign + zeroPadded;
-}
+};
