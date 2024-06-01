@@ -76,6 +76,15 @@ The project uses the following libraries, which are included via CDN in the HTML
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue to discuss any changes or improvements.
 
+## TODO
+
+- [ ] Add room props.
+- [ ] Add ability to move rooms while keeping connections intact.
+- [ ] Improve the UI/UX for the room editing form.
+- [ ] Implement undo/redo functionality.
+- [ ] Optimize performance for larger maps.
+- [ ] Create sample maps.
+
 ## License
 This project is licensed under the MIT License.
 
