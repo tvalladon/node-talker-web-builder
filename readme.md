@@ -104,10 +104,10 @@ Feel free to pick any of these or suggest your own improvements!
 - [ ] Add room props.
 - [ ] Add form for editing zone values and settings.
 - [ ] Improve the UI/UX for the room editing form.
-- [ ] Implement undo/redo functionality.
-- [ ] Optimize performance for larger maps.
 - [ ] Create sample maps.
+- [ ] Optimize performance for larger maps.
 - [ ] Add ability to move rooms while keeping connections intact.
+- [ ] Implement undo/redo functionality.
 
 ## License
 This project is licensed under the MIT License.
