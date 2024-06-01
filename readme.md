@@ -20,7 +20,6 @@ Try the fully functional demo at [Node Talker Web Builder](https://tvalladon.git
 Node Talker Web Builder Tool leverages your browser's local storage to save your work between sessions. This means you can close the browser or navigate away from the page, and your current zone layout will be preserved and automatically reloaded the next time you open the tool. This ensures that you won't lose your progress and can continue building from where you left off.
 
 However, we strongly encourage you to regularly use the "Save Map" and "Load Map" functionalities to manually back up and restore your work. This provides an additional layer of security for your data in case something goes wrong with the local storage.
-|||
 
 ## Libraries and Dependencies
 The project uses the following libraries, which are included via CDN in the HTML file:
