@@ -1153,6 +1153,24 @@ class Grid {
     }
 
     /**
+     * Updates all room exit zone IDs with the provided new zone ID.
+     *
+     * @param {string} newZoneId - The new zone ID to replace the existing zone IDs.
+     * @return {void}
+     */
+    updateAllRoomExitZoneIds(newZoneId) {
+        this.rooms.forEach(room => {
+            Object.keys(room.exits).forEach(exit => {
+                let oldExitValue = room.exits[exit];
+                // Break down the exit value (e.g. "002:001" becomes ["002", "001"])
+                let [oldZone, roomId] = oldExitValue.split(':');
+                // Build a new value (e.g. ["069", "001"] becomes "069:001")
+                room.exits[exit] = `${zeroPad(newZoneId, 3)}:${roomId}`;
+            });
+        });
+    }
+
+    /**
      * Updates the zone ID for all rooms.
      *
      * @param {string} newZoneId - The new zone ID to be assigned to all rooms.
@@ -1270,10 +1288,15 @@ document.getElementById('startingRoomId').addEventListener('change', function ()
     grid.startingRoomId = parseInt(this.value, 10); // Update grid startingRoomId as an integer
 });
 
+let debounceTimer;
+
 document.getElementById('zoneId').addEventListener('change', function () {
-    changeZoneId(this);
-    grid.zoneId = parseInt(this.value, 10); // Update grid zoneId as an integer
-    grid.drawGrid();
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        changeZoneId(this);
+        grid.zoneId = parseInt(this.value, 10); // Update grid zoneId as an integer
+        grid.drawGrid();
+    }, 300); // delay in milliseconds
 });
 
 // Initialize Konva
@@ -1330,6 +1353,7 @@ const changeZoneId = (input) => {
         input.setCustomValidity("");
         input.value = zeroPad(zoneIdValue, 3);
         grid.updateAllRoomZoneIds(zoneIdValue);
+        grid.updateAllRoomExitZoneIds(zoneIdValue);
         grid.zoneId = zoneIdValue;
         grid.drawGrid(); // Redraw the grid to reflect the updated zone IDs
     }
@@ -1393,7 +1417,7 @@ const loadMap = () => {
             try {
                 let data = JSON.parse(readerEvent.target.result);
                 grid.rooms = data;
-                if(grid.rooms[0].zoneId) {
+                if (grid.rooms[0].zoneId) {
                     document.getElementById("zoneId").value = zeroPad(grid.rooms[0].zoneId, 3);
                 }
                 grid.drawRooms();
@@ -1430,14 +1454,14 @@ const processMap = () => {
     let roomsData = JSON.parse(JSON.stringify(grid.rooms));
 
     roomsData.forEach(room => {
-        ['gridX','gridY','gridSize','rect','text'].forEach(key => delete room[key]);
+        ['gridX', 'gridY', 'gridSize', 'rect', 'text'].forEach(key => delete room[key]);
 
         // Create a JSON file for each room and add it to the zip
         zip.file(`${zeroPad(room.zoneId, 3)}:${zeroPad(room.roomId, 3)}.json`, JSON.stringify(room));
     });
 
-    zip.generateAsync({type:"blob"})
-        .then(function(content) {
+    zip.generateAsync({type: "blob"})
+        .then(function (content) {
             // Create a link and click it to download the zip file
             let link = document.createElement('a');
             link.download = `${zeroPad(grid.rooms[0].zoneId, 3)}.zip`;
