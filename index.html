@@ -13,71 +13,90 @@
 </head>
 
 <body>
-    <!-- Konva Container -->
-    <div id="konva-container"></div>
+<!-- Konva Container -->
+<div id="konva-container"></div>
 
-    <!-- Hamburger Menu -->
-    <div id="hamburger-menu" class="fa fa-bars" onclick="openMenu()"></div>
+<!-- Hamburger Menu -->
+<div id="hamburger-menu" class="fa fa-bars" onclick="openMenu()"></div>
 
-    <!-- Coordinates Display -->
-    <div id="info" style="position: fixed; top: 10px; right: 10px;"></div>
+<!-- Coordinates Display -->
+<div id="info" style="position: fixed; top: 10px; right: 10px;"></div>
 
-    <!-- Tool Pallet -->
-    <div id="toolPallet" style="position: fixed; bottom: 10px; right: 10px; display: flex;">
-        <div id="pointerIconContainer">
+<!-- Tool Pallet -->
+<div id="toolPallet" style="position: fixed; bottom: 10px; right: 10px;">
+    <div style="display: flex;">
+        <div id="pointerIconContainer" title="pan/zoom tool">
             <i id="pointerIcon" class="fas fa-hand-pointer"></i>
         </div>
-        <div id="roomShapeContainer">
+        <div id="roomShapeContainer" title="create rooms tool">
             <i id="roomShape" class="fas fa-vector-square"></i>
         </div>
-        <div id="penIconContainer">
+        <div id="penIconContainer" title="edit rooms tool">
             <i id="penIcon" class="fas fa-pen"></i>
         </div>
-<!--        <div id="moveIconContainer">-->
-<!--            <i id="moveIcon" class="fas fa-arrows-up-down-left-right"></i>-->
-<!--        </div>-->
-        <div id="eraserIconContainer">
+        <div id="eraserIconContainer" title="erase rooms tool">
             <i id="eraserIcon" class="fas fa-eraser"></i>
         </div>
-        <div id="helpIconContainer">
+        <div id="helpIconContainer" title="help">
             <i id="helpIcon" class="fas fa-question"></i>
         </div>
     </div>
+    <span id="helpText"></span>
+</div>
 
-    <!-- Expanded Menu -->
-    <div id="expanded-menu" class="hidden">
-        <div class="menu-item">
-            <label for="zoneId"></label><input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999" value="001">
-            <label for="startingRoomId">:</label> <input type="number" id="startingRoomId" onchange="changeRoomId(this)" min="-999" max="999" value="001">
-        </div>
-<!--        <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>-->
-<!--        <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>-->
-        <div id="save" class="menu-item" onclick="saveMap()">SAVE MAP</div>
-        <div id="load" class="menu-item" onclick="loadMap()">LOAD MAP</div>
-        <div id="process" class="menu-item" onclick="processMap()">PROCESS MAP</div>
-        <!-- Add more items here -->
+<!-- Expanded Menu -->
+<div id="expanded-menu" class="hidden">
+    <div class="menu-item">
+        <label for="zoneId"></label><input type="number" id="zoneId" onchange="changeZoneId(this)" min="-999" max="999"
+                                           value="001">
+        <label for="startingRoomId">:</label> <input type="number" id="startingRoomId" onchange="changeRoomId(this)"
+                                                     min="-999" max="999" value="001">
     </div>
+    <!--        <div id="debug" class="menu-item" onclick="debugRooms()">DEBUG</div>-->
+    <!--        <div id="json" class="menu-item" onclick="jsonRooms()">JSON</div>-->
+    <div id="save" class="menu-item" onclick="saveMap()">SAVE MAP</div>
+    <div id="load" class="menu-item" onclick="loadMap()">LOAD MAP</div>
+    <div id="process" class="menu-item" onclick="processMap()">PROCESS MAP</div>
+    <!-- Add more items here -->
+</div>
 
-    <!-- Slide-Out Form -->
-    <div id="slideOutForm" class="hidden">
-        <!-- Form content will be dynamically inserted here -->
-    </div>
+<!-- Slide-Out Form -->
+<div id="slideOutForm" class="hidden">
+    <!-- Form content will be dynamically inserted here -->
+</div>
 
-    <!-- Help Modal -->
-    <div id="helpModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Help Information</h2>
-            <p><i class="fas fa-hand-pointer"></i> Pan/Zoom</p>
-            <p><i class="fas fa-vector-square"></i> Create</p>
-            <p><i class="fas fa-pen"></i> Edit</p>
-            <p><i class="fas fa-eraser"></i> Erase</p>
-            <p><i class="fas fa-question"></i> Help</p>
-            <p>Press [ESC] to return to Pan tool.</p>
-            <p>Press [TAB] to cycle through tools.</p>
-            <p>Press [SPACE] to zoom in and out from mouse location.</p>
-        </div>
+<!-- Help Modal -->
+<div id="helpModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Help Information</h2>
+        <p><i class="fas fa-hand-pointer"></i> Pan/Zoom</p>
+        <p><i class="fas fa-vector-square"></i> Create</p>
+        <p><i class="fas fa-pen"></i> Edit</p>
+        <p><i class="fas fa-eraser"></i> Erase</p>
+        <p><i class="fas fa-question"></i> Help</p>
+        <p>Press [ESC] to return to Pan tool.</p>
+        <p>Press [TAB] to cycle through tools.</p>
+        <p>Press [SPACE] to zoom in and out from mouse location.</p>
     </div>
+</div>
 </body>
+<script>
+    // Select all the direct icon container divs
+    let iconContainers = document.querySelectorAll('#pointerIconContainer, #roomShapeContainer, #penIconContainer, #eraserIconContainer, #helpIconContainer');
 
+    // Loop through each icon container and add mouseover event
+    iconContainers.forEach(function (container) {
+        container.addEventListener('mouseover', function (event) {
+            let title = event.currentTarget.title;   // Get the title of the hovered icon container
+            let helpText = document.querySelector('#helpText');   // Select the helpText element
+            helpText.textContent = title.toLowerCase();    // Set the content of the helpText to the title
+        });
+        // Adding mouseout event to clear the helpText when mouse is not over any icon
+        container.addEventListener('mouseout', function () {
+            let helpText = document.querySelector('#helpText');   // Select the helpText element
+            helpText.textContent = "";  // Clear the content of the helpText
+        });
+    });
+</script>
 </html>
