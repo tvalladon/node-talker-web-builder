@@ -72,8 +72,10 @@ class Grid {
         const newExitHtml = `<div class="exit-row new-exit">
             <select class="edit-direction">${directions.map(dir => `<option value="${dir}">${dir}</option>`).join('')}</select>
             <select class="edit-target">${roomOptions}</select>
-            <i class="fas fa-save save-exit"></i>
-            <i class="fas fa-times cancel-edit"></i>
+            <span style="right: 0;position: absolute;margin-right: 20px;">
+                <i class="fas fa-save save-exit"></i>
+                <i class="fas fa-times cancel-edit"></i>            
+            </span>
         </div>`;
 
         document.querySelector('#exitsPlaceholder').insertAdjacentHTML('beforeend', newExitHtml);
@@ -422,6 +424,19 @@ class Grid {
         let roomY = Math.floor((y - this.offsetY) / (20 * this.scale));
         let roomIndex = this.rooms.findIndex(room => room.gridX === roomX && room.gridY === roomY);
         if (roomIndex > -1) {
+            // Get the roomId and zoneId
+            const roomId = this.rooms[roomIndex].roomId;
+            const zoneId = this.rooms[roomIndex].roomId;
+
+            // Remove any exits that point to this room
+            this.rooms.forEach(room => {
+                Object.keys(room.exits).forEach(exit => {
+                    if(room.exits[exit] === `${zeroPad(zoneId, 3)}:${zeroPad(roomId, 3)}`) {
+                        delete room.exits[exit];
+                    }
+                });
+            });
+
             this.rooms.splice(roomIndex, 1);
             this.drawGrid(); // Redraw the grid to reflect changes
         }
@@ -996,21 +1011,21 @@ class Grid {
      * @returns {void}
      */
     setupToolEventListeners() {
-        const roomShape = document.getElementById('roomShapeContainer');
-        const pointerIcon = document.getElementById('pointerIconContainer');
+        const roomShapeContainer = document.getElementById('roomShapeContainer');
+        const pointerIconContainer = document.getElementById('pointerIconContainer');
         const eraserIconContainer = document.getElementById('eraserIconContainer');
         const penIconContainer = document.getElementById('penIconContainer');
         const helpIconContainer = document.getElementById('helpIconContainer');
 
-        if (roomShape) {
-            roomShape.addEventListener('click', (e) => {
+        if (roomShapeContainer) {
+            roomShapeContainer.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.selectTool('room');
             });
         }
 
-        if (pointerIcon) {
-            pointerIcon.addEventListener('click', (e) => {
+        if (pointerIconContainer) {
+            pointerIconContainer.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.selectTool('pan');
             });
@@ -1062,38 +1077,50 @@ class Grid {
             exitsHtml += `
             <div class="exit-row" data-direction="${direction}">
                 ${direction} to ${target} 
-                <i class="fas fa-edit edit-exit"></i> 
-                <i class="fas fa-trash-alt delete-exit"></i>
+                    <span style="right: 0;position: absolute;margin-right: 20px;">
+                        <i class="fas fa-edit edit-exit"></i> 
+                    <i class="fas fa-trash-alt delete-exit"></i>
+                </span>
             </div>`;
         }
         if (Object.keys(room.exits).length < 10) {
-            exitsHtml += `<div class="exit-row add-exit"><i class="fas fa-plus"></i> Add Exit</div>`;
+            exitsHtml += `<span class="exit-row add-exit"><i class="fas fa-plus"></i></span>`;
         }
 
         const formHtml = `
         <div id="editFormContent">
-            <h3>Edit Room: ${formattedZoneId}:${formattedRoomId}</h3>
+            <div>
+                <button id="saveRoom">Save</button>
+                <button id="cancelEdit" style="position: absolute;right: 0;">Cancel</button>            
+            </div>
+            <b>Edit Room: ${formattedZoneId}:${formattedRoomId}</b>
             <label for="roomName">Name:</label>
             <input type="text" id="roomName" value="${room.name}">
             <label for="roomDescription">Description:</label>
-            <textarea id="roomDescription">${room.description}</textarea>
-            <label for="roomLockable">Lockable:</label>
-            <input type="checkbox" id="roomLockable" ${room.lockable ? 'checked' : ''}>
-            <label for="roomLocked">Locked:</label>
-            <input type="checkbox" id="roomLocked" ${room.locked ? 'checked' : ''}>
-            <label for="roomTemporary">Temporary:</label>
-            <input type="checkbox" id="roomTemporary" ${room.temporary ? 'checked' : ''}>
-            <label for="roomSolo">Solo:</label>
-            <input type="checkbox" id="roomSolo" ${room.solo ? 'checked' : ''}>
+            <textarea id="roomDescription" style="min-width: 100%;">${room.description}</textarea>
+            <div>
+                <input type="checkbox" id="roomLockable" ${room.lockable ? 'checked' : ''}>
+                <label for="roomLockable">Lockable</label>
+            </div>
+            <div>
+                <input type="checkbox" id="roomLocked" ${room.locked ? 'checked' : ''}>
+                <label for="roomLocked">Locked</label>            
+            </div>
+            <div>
+                <input type="checkbox" id="roomTemporary" ${room.temporary ? 'checked' : ''}>
+                <label for="roomTemporary">Temporary</label>
+            </div>
+            <div>
+                <input type="checkbox" id="roomSolo" ${room.solo ? 'checked' : ''}>
+                <label for="roomSolo">Solo</label>            
+            </div>
             <label for="roomCreator">Creator:</label>
             <input type="text" id="roomCreator" value="${room.creator}">
             <label for="roomOwner">Owner:</label>
             <input type="text" id="roomOwner" value="${room.owner}">
-            <div id="exitsPlaceholder">Exits: ${exitsHtml}</div>
+            <div id="exitsPlaceholder"><b></b>Exits</b> ${exitsHtml}</div>
             <div id="whitelistPlaceholder">Whitelist: <em>Placeholder for whitelist</em></div>
             <div id="propsPlaceholder">Props: <em>Placeholder for props</em></div>
-            <button id="saveRoom">Save</button>
-            <button id="cancelEdit">Cancel</button>
         </div>`;
 
         const slideOutForm = document.getElementById('slideOutForm');
