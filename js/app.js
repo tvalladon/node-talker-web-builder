@@ -308,6 +308,7 @@ class Grid {
      */
     drawRoom(room) {
         const roomId = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+        const roomName = `${room.name}`;
         const rect = new Konva.Rect({
             x: room.gridX * 20 * this.scale + this.offsetX,
             y: room.gridY * 20 * this.scale + this.offsetY,
@@ -319,12 +320,13 @@ class Grid {
         });
 
         const text = new Konva.Text({
-            x: room.gridX * 20 * this.scale + this.offsetX + (.25 * this.scale),
-            y: room.gridY * 20 * this.scale + this.offsetY + (.25 * this.scale), // Center text vertically
-            text: roomId,
-            fontSize: 0.5 * this.scale, // Adjust font size to fit within the room
-            width: 20 * this.scale,
+            x: room.gridX * 20 * this.scale + this.offsetX + (1.75 * this.scale),
+            y: room.gridY * 20 * this.scale + this.offsetY + (1.75 * this.scale), // Center text vertically
+            text: `${roomName ? '{ ' + roomName + ' } ' : ''}[${roomId}]\r\n${room.description}`,
+            fontSize: 0.25 * this.scale, // Adjust font size to fit within the room
+            width: 16.5 * this.scale,
             verticalAlign: 'middle', // Ensure text is centered vertically
+            wrap: 'word', // Ensure word wrapping
         });
 
         layer.add(rect);
