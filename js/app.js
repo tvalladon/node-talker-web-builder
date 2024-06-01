@@ -1482,7 +1482,7 @@ const saveMap = () => {
         // Deepcopy the room data
         let mapData = JSON.parse(JSON.stringify(grid.rooms));
 
-        let data = JSON.stringify(mapData, null, 2);
+        let data = JSON.stringify(mapData);
         let blob = new Blob([data], {type: 'application/json'});
         let url = URL.createObjectURL(blob);
 
