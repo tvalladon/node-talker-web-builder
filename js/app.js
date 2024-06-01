@@ -53,6 +53,11 @@ class Grid {
 
         this.setupEventListeners();
         window.addEventListener('resize', () => this.handleResize());
+
+        if(this.isDataInLocalStorage()) {
+            this.loadFromLocalStorage();
+            this.drawRooms();
+        }
     }
 
     /**
@@ -95,6 +100,7 @@ class Grid {
         room.roomId = this.generateRoomId();
         this.rooms.push(room);
         this.drawGrid();
+        this.saveToLocalStorage();
     }
 
     /**
@@ -141,6 +147,7 @@ class Grid {
         slideOutForm.classList.remove('visible');
         slideOutForm.classList.add('hidden');
         slideOutForm.innerHTML = ''; // Clear form content
+        this.saveToLocalStorage();
     }
 
     /**
@@ -157,6 +164,7 @@ class Grid {
         delete room.exits[direction];
 
         this.showEditForm(room);
+        this.saveToLocalStorage();
     }
 
     /**
@@ -393,6 +401,8 @@ class Grid {
 
         exitRow.querySelector('.save-exit').addEventListener('click', () => this.saveExit(exitRow, room));
         exitRow.querySelector('.cancel-edit').addEventListener('click', () => this.cancelEditExit(exitRow, direction, target));
+
+        this.saveToLocalStorage();
     }
 
     /**
@@ -439,6 +449,7 @@ class Grid {
 
             this.rooms.splice(roomIndex, 1);
             this.drawGrid(); // Redraw the grid to reflect changes
+            this.saveToLocalStorage();
         }
     }
 
@@ -779,6 +790,15 @@ class Grid {
     }
 
     /**
+     * Checks if the data is stored in the browser's local storage.
+     *
+     * @returns {boolean} - Returns true if the data ('rooms') is stored in the local storage, otherwise false.
+     */
+    isDataInLocalStorage() {
+        return localStorage.getItem('rooms') !== null;
+    }
+
+    /**
      * Checks if the edit form is open.
      *
      * @returns {boolean} True if the edit form is open, false otherwise.
@@ -797,6 +817,16 @@ class Grid {
      */
     isRoomAt(gridX, gridY) {
         return this.rooms.some(room => room.gridX === gridX && room.gridY === gridY);
+    }
+
+    /**
+     * Retrieves rooms data from local storage and assigns it to the `this.rooms` property.
+     * If no data is found in local storage, an empty array is assigned to `this.rooms`.
+     *
+     * @return {void}
+     */
+    loadFromLocalStorage() {
+        this.rooms = JSON.parse(localStorage.getItem('rooms')) || [];
     }
 
     /**
@@ -849,6 +879,7 @@ class Grid {
     removeRoom(index) {
         this.rooms.splice(index, 1);
         this.drawGrid();
+        this.saveToLocalStorage();
     }
 
     /**
@@ -881,6 +912,8 @@ class Grid {
         }
 
         this.showEditForm(room);
+
+        this.saveToLocalStorage();
     }
 
     /**
@@ -903,6 +936,8 @@ class Grid {
         }
 
         this.showEditForm(room);
+
+        this.saveToLocalStorage();
     }
 
     /**
@@ -922,6 +957,16 @@ class Grid {
 
         this.drawGrid(); // Redraw the grid to reflect changes
         this.closeEditForm();
+        this.saveToLocalStorage();
+    }
+
+    /**
+     * Saves the rooms data to the local storage.
+     *
+     * @returns {void} - This method does not return anything.
+     */
+    saveToLocalStorage() {
+        localStorage.setItem('rooms', JSON.stringify(this.rooms));
     }
 
     /**
@@ -1168,6 +1213,8 @@ class Grid {
                 room.exits[exit] = `${zeroPad(newZoneId, 3)}:${roomId}`;
             });
         });
+
+        this.saveToLocalStorage();
     }
 
     /**
@@ -1356,6 +1403,7 @@ const changeZoneId = (input) => {
         grid.updateAllRoomExitZoneIds(zoneIdValue);
         grid.zoneId = zoneIdValue;
         grid.drawGrid(); // Redraw the grid to reflect the updated zone IDs
+        grid.saveToLocalStorage();
     }
 };
 
@@ -1430,6 +1478,12 @@ const loadMap = () => {
     };
 
     input.click();
+};
+
+const newMap=()=>{
+    grid.rooms = [];
+    localStorage.clear();
+    grid.drawGrid();
 };
 
 /**
