@@ -8,7 +8,8 @@ Try the fully functional demo at [Node Talker Web Builder](https://tvalladon.git
 ## Features
 - **Create and Manage Rooms:** Easily create, edit, and delete rooms on a grid-based interface.
 - **Room Properties:** Define room properties such as name, description, lockable, locked, temporary, solo, creator, owner, and exits.
-- **Pan and Zoom:** Navigate the grid with pan and zoom functionalities.
+- **Pan and Zoom:** Navigate the grid with seamless pan and zoom functionalities.
+- **Detailed Room View:** Zooming in on a room reveals detailed information including the room name, zone ID, room ID, and description, elegantly displayed within the room square.
 - **Tool Pallet:** Use different tools for creating, editing, erasing rooms, and navigating the grid.
 - **Save and Load Zones:** Save your zones to a file and load them later to continue editing.
 - **Export to Zip:** Generate a zip file containing JSON files for each room, ready for server deployment.
@@ -17,6 +18,9 @@ Try the fully functional demo at [Node Talker Web Builder](https://tvalladon.git
 ## Persistent Data Storage
 
 Node Talker Web Builder Tool leverages your browser's local storage to save your work between sessions. This means you can close the browser or navigate away from the page, and your current zone layout will be preserved and automatically reloaded the next time you open the tool. This ensures that you won't lose your progress and can continue building from where you left off.
+
+However, we strongly encourage you to regularly use the "Save Map" and "Load Map" functionalities to manually back up and restore your work. This provides an additional layer of security for your data in case something goes wrong with the local storage.
+|||
 
 ## Libraries and Dependencies
 The project uses the following libraries, which are included via CDN in the HTML file:
@@ -74,16 +78,36 @@ The project uses the following libraries, which are included via CDN in the HTML
 - **Processing a Map:** Click on the "PROCESS MAP" menu item to generate a zip file containing JSON files for each room, which can be extracted to the server's `db/rooms` directory.
 
 ## Contributing
-Contributions are welcome! Please submit a pull request or open an issue to discuss any changes or improvements.
+
+We welcome contributions from the community to enhance the Node Talker Web Builder Tool! If you're interested in helping with development, please feel free to fork the repository, make your changes, and submit a pull request. Whether you're fixing bugs, adding new features, or improving documentation, your contributions are greatly appreciated.
+
+Please note that this tool is a lower priority for me as most of my time will be spent on developing [Node Talker](https://github.com/tvalladon/node-talker) itself. Therefore, community contributions are crucial for the continued improvement and maintenance of this tool.
+
+If you have any questions or need guidance, don't hesitate to open an issue or reach out. Let's collaborate to make this tool even better!
+
+### Feature Hitlist
+
+Here are some features we would love to see added:
+
+- Functionality move rooms using drag and drop.
+- Functionality to copy and paste rooms.
+- Improved UI/UX for the room editing form.
+- Bulk editing of room properties.
+- Undo/redo functionality.
+- Performance optimizations for larger maps.
+- Tutorial and user guide.
+
+Feel free to pick any of these or suggest your own improvements!
 
 ## TODO
 
 - [ ] Add room props.
-- [ ] Add ability to move rooms while keeping connections intact.
+- [ ] Add form for editing zone values and settings.
 - [ ] Improve the UI/UX for the room editing form.
 - [ ] Implement undo/redo functionality.
 - [ ] Optimize performance for larger maps.
 - [ ] Create sample maps.
+- [ ] Add ability to move rooms while keeping connections intact.
 
 ## License
 This project is licensed under the MIT License.
