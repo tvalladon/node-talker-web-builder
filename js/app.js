@@ -54,7 +54,7 @@ class Grid {
         this.setupEventListeners();
         window.addEventListener('resize', () => this.handleResize());
 
-        if(this.isDataInLocalStorage()) {
+        if (this.isDataInLocalStorage()) {
             this.loadFromLocalStorage();
             this.drawRooms();
         }
@@ -182,15 +182,16 @@ class Grid {
                 if (targetRoom) {
                     const reverseDirection = this.getReverseDirection(direction);
                     const reciprocal = targetRoom.exits[reverseDirection] === sourceId;
-                    let color = reciprocal ? 'black' : 'yellow';
+                    let color = reciprocal ? 'white' : 'yellow';
                     if (sourceId === targetId) color = 'red';
 
                     const line = new Konva.Line({
                         points: this.getLinePoints(room, targetRoom, direction),
                         stroke: color,
-                        strokeWidth: 3 * this.scale, // Adjust line width based on scale
+                        strokeWidth: 1 * this.scale, // Adjust line width based on scale
                         lineCap: 'round',
                         lineJoin: 'round',
+                        opacity: 0.2,
                     });
                     layer.add(line);
                 }
@@ -504,6 +505,10 @@ class Grid {
         let adjustment = 10 * this.scale; // Adjust for room size
 
         switch (direction) {
+            case 'up':
+                return [sourceX - 5 * this.scale, sourceY - adjustment, targetX + 5 * this.scale, targetY + adjustment];
+            case 'down':
+                return [sourceX + 5 * this.scale, sourceY + adjustment, targetX - 5 * this.scale, targetY - adjustment];
             case 'north':
                 return [sourceX, sourceY - adjustment, targetX, targetY + adjustment];
             case 'south':
@@ -1465,6 +1470,26 @@ const loadMap = () => {
             try {
                 let data = JSON.parse(readerEvent.target.result);
                 grid.rooms = data;
+
+                // Find the highest and lowest roomId
+                let highestRoomId = 0;
+                let lowestRoomId = Number.MAX_SAFE_INTEGER;
+
+                for (let room of grid.rooms) {
+                    if (room.roomId > highestRoomId) {
+                        highestRoomId = room.roomId;
+                    }
+                    if (room.roomId < lowestRoomId) {
+                        lowestRoomId = room.roomId;
+                    }
+                }
+
+                // Set grid.this.currentRoomId to the highest roomId plus one
+                grid.currentRoomId = highestRoomId + 1;
+
+                // Set the lowest roomId to the roomId input field
+                document.getElementById("startingRoomId").value = lowestRoomId;
+
                 if (grid.rooms[0].zoneId) {
                     document.getElementById("zoneId").value = zeroPad(grid.rooms[0].zoneId, 3);
                 }
@@ -1480,7 +1505,7 @@ const loadMap = () => {
     input.click();
 };
 
-const newMap=()=>{
+const newMap = () => {
     grid.rooms = [];
     localStorage.clear();
     grid.drawGrid();
