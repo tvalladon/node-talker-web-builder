@@ -105,6 +105,28 @@ class Grid {
     }
 
     /**
+     * Adds a new prop to the given room.
+     *
+     * @param {object} room - The room object to add the prop to.
+     */
+    addProp(room) {
+        const newPropHtml = `<div class="prop-row new-prop">
+            <input type="text" class="edit-prop-key" placeholder="Enter key (no spaces)">
+            <textarea class="edit-prop-value" placeholder="Enter description"></textarea>
+            <span style="right: 0;position: absolute;margin-right: 20px;">
+                <i class="fas fa-save save-prop"></i>
+                <i class="fas fa-times cancel-edit"></i>
+            </span>
+        </div>`;
+
+        document.querySelector('#propsPlaceholder').insertAdjacentHTML('beforeend', newPropHtml);
+
+        const newPropRow = document.querySelector('.new-prop');
+        newPropRow.querySelector('.save-prop').addEventListener('click', () => this.saveNewProp(newPropRow, room));
+        newPropRow.querySelector('.cancel-edit').addEventListener('click', () => newPropRow.remove());
+    }
+
+    /**
      * Add a room to the list of rooms in the grid.
      *
      * @param {Object} room - The room object to be added.
@@ -152,6 +174,24 @@ class Grid {
     }
 
     /**
+     * Cancel the editing of a prop.
+     *
+     * @param {HTMLElement} propRow - The HTML element of the prop row.
+     * @param {string} propKey - The key of the prop.
+     * @param {string} propValue - The value of the prop.
+     */
+    cancelEditProp(propRow, propKey, propValue) {
+        propRow.innerHTML = `${propKey}: ${propValue}
+        <span style="right: 0;position: absolute;margin-right: 20px;">
+           <i class="fas fa-edit edit-prop"></i>
+           <i class="fas fa-trash-alt delete-prop"></i>
+        </span>`;
+
+        propRow.querySelector('.edit-prop').addEventListener('click', (e) => this.editProp(e, room));
+        propRow.querySelector('.delete-prop').addEventListener('click', (e) => this.deleteProp(e, room));
+    }
+
+    /**
      * Closes the edit form. This method hides the edit form by removing the 'visible' class and adding the 'hidden' class to the element with the id 'slideOutForm'. It also clears the content of the form by setting the innerHTML to an empty string.
      *
      * @return {void} - This method does not return any value.
@@ -177,6 +217,21 @@ class Grid {
 
         delete room.exits[direction];
 
+        this.showEditForm(room);
+        this.saveToLocalStorage();
+    }
+
+    /**
+     * Delete a prop from the given room.
+     *
+     * @param {Event} e - The event object.
+     * @param {object} room - The room object containing the prop to delete.
+     */
+    deleteProp(e, room) {
+        const propRow = e.target.closest('.prop-row');
+        const propKey = propRow.getAttribute('data-key');
+
+        delete room.props[propKey];
         this.showEditForm(room);
         this.saveToLocalStorage();
     }
@@ -418,6 +473,30 @@ class Grid {
         exitRow.querySelector('.cancel-edit').addEventListener('click', () => this.cancelEditExit(exitRow, direction, target));
 
         this.saveToLocalStorage();
+    }
+
+    /**
+     * Edit an existing prop in the given room.
+     *
+     * @param {Event} e - The event object.
+     * @param {object} room - The room object containing the prop to edit.
+     */
+    editProp(e, room) {
+        const propRow = e.target.closest('.prop-row');
+        const propKey = propRow.getAttribute('data-key');
+        const propValue = room.props[propKey];
+
+        const editHtml = `<input type="text" class="edit-prop-key" value="${propKey}">
+        <textarea class="edit-prop-value">${propValue}</textarea>
+        <span style="right: 0;position: absolute;margin-right: 20px;">
+            <i class="fas fa-save save-prop"></i>
+            <i class="fas fa-times cancel-edit"></i>
+        </span>`;
+
+        propRow.innerHTML = editHtml;
+
+        propRow.querySelector('.save-prop').addEventListener('click', () => this.saveProp(propRow, room, propKey));
+        propRow.querySelector('.cancel-edit').addEventListener('click', () => this.cancelEditProp(propRow, propKey, propValue));
     }
 
     /**
@@ -983,6 +1062,49 @@ class Grid {
     }
 
     /**
+     * Save a new prop to the given room.
+     *
+     * @param {HTMLElement} propRow - The HTML element of the new prop row.
+     * @param {object} room - The room object to save the prop to.
+     */
+    saveNewProp(propRow, room) {
+        const propKey = propRow.querySelector('.edit-prop-key').value.trim();
+        const propValue = propRow.querySelector('.edit-prop-value').value.trim();
+
+        if (!propKey || /\s/.test(propKey) || !propValue) {
+            alert("Invalid key or value. Key must be a single word with no spaces.");
+            return;
+        }
+
+        room.props[propKey] = propValue;
+        this.showEditForm(room);
+        this.saveToLocalStorage();
+    }
+
+    /**
+     * Save an edited prop to the given room.
+     *
+     * @param {HTMLElement} propRow - The HTML element of the prop row.
+     * @param {object} room - The room object containing the prop to save.
+     * @param {string} oldKey - The original key of the prop.
+     */
+    saveProp(propRow, room, oldKey) {
+        const newKey = propRow.querySelector('.edit-prop-key').value.trim();
+        const newValue = propRow.querySelector('.edit-prop-value').value.trim();
+
+        if (!newKey || /\s/.test(newKey) || !newValue) {
+            alert("Invalid key or value. Key must be a single word with no spaces.");
+            return;
+        }
+
+        delete room.props[oldKey];
+        room.props[newKey] = newValue;
+
+        this.showEditForm(room);
+        this.saveToLocalStorage();
+    }
+
+    /**
      * Saves the changes made to the room.
      *
      * @param {Object} room - The room object to be saved.
@@ -1149,11 +1271,6 @@ class Grid {
         stage.on('wheel', (e) => this.handleZoom(e));
     }
 
-    /**
-     * Displays the edit form for a given room.
-     *
-     * @param {Object} room - The room object to edit.
-     */
     showEditForm(room) {
         const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
         const formattedZoneId = String(room.zoneId).padStart(3, '0');
@@ -1162,20 +1279,33 @@ class Grid {
         let exitsHtml = '';
         for (let [direction, target] of Object.entries(room.exits)) {
             exitsHtml += `
-            <div class="exit-row" data-direction="${direction}">
-                ${direction} to ${target} 
-                    <span style="right: 0;position: absolute;margin-right: 20px;">
-                        <i class="fas fa-edit edit-exit"></i> 
-                    <i class="fas fa-trash-alt delete-exit"></i>
-                </span>
-            </div>`;
+        <div class="exit-row" data-direction="${direction}">
+            ${direction} to ${target}
+            <span style="right: 0;position: absolute;margin-right: 20px;">
+                <i class="fas fa-edit edit-exit"></i>
+                <i class="fas fa-trash-alt delete-exit"></i>
+            </span>
+        </div>`;
         }
         if (Object.keys(room.exits).length < 10) {
             exitsHtml += `<span class="exit-row add-exit"><i class="fas fa-plus"></i></span>`;
         }
 
-        const formHtml = `
-        <div id="editFormContent">
+        let propsHtml = '';
+        for (let [key, value] of Object.entries(room.props)) {
+            propsHtml += `<div class="prop-row" data-key="${key}">
+                ${key}: ${value}
+                <span style="right: 0;position: absolute;margin-right: 20px;">
+                    <i class="fas fa-edit edit-prop"></i>
+                    <i class="fas fa-trash-alt delete-prop"></i>
+                </span>
+            </div>`;
+        }
+        if (Object.keys(room.props).length < 10) {
+            propsHtml += `<span class="prop-row add-prop"><i class="fas fa-plus"></i> Add Prop</span>`;
+        }
+
+        const formHtml = `<div id="editFormContent">
             <div>
                 <button id="saveRoom">Save</button>
                 <button id="cancelEdit" style="position: absolute;right: 0;">Cancel</button>            
@@ -1205,9 +1335,8 @@ class Grid {
             <input type="text" id="roomCreator" value="${room.creator}">
             <label for="roomOwner">Owner:</label>
             <input type="text" id="roomOwner" value="${room.owner}">
-            <div id="exitsPlaceholder"><b></b>Exits</b> ${exitsHtml}</div>
-            <div id="whitelistPlaceholder">Whitelist: <em>Placeholder for whitelist</em></div>
-            <div id="propsPlaceholder">Props: <em>Placeholder for props</em></div>
+            <div id="exitsPlaceholder"><b>Exits</b> ${exitsHtml}</div>
+            <div id="propsPlaceholder"><b>Props</b> ${propsHtml}</div>
         </div>`;
 
         const slideOutForm = document.getElementById('slideOutForm');
@@ -1221,6 +1350,10 @@ class Grid {
         document.querySelectorAll('.edit-exit').forEach(el => el.addEventListener('click', (e) => this.editExit(e, room)));
         document.querySelectorAll('.delete-exit').forEach(el => el.addEventListener('click', (e) => this.deleteExit(e, room)));
         document.querySelector('.add-exit').addEventListener('click', () => this.addExit(room));
+
+        document.querySelectorAll('.edit-prop').forEach(el => el.addEventListener('click', (e) => this.editProp(e, room)));
+        document.querySelectorAll('.delete-prop').forEach(el => el.addEventListener('click', (e) => this.deleteProp(e, room)));
+        document.querySelector('.add-prop').addEventListener('click', () => this.addProp(room));
     }
 
     /**
