@@ -1,3 +1,17 @@
+/**
+ * Pads a number with leading zeros to a specified number of places.
+ *
+ * @param {number} num - The number to be padded.
+ * @param {number} places - The number of places to pad to.
+ * @return {string} - The padded number as a string.
+ */
+const zeroPad = (num, places) => {
+    let absNum = Math.abs(num);
+    let sign = num < 0 ? '-' : '';
+    let zeroPadded = absNum.toString().padStart(places, '0');
+    return sign + zeroPadded;
+};
+
 class Room {
     /**
      * Constructor for creating a new instance of a room.
@@ -832,6 +846,29 @@ class Grid {
      */
     loadFromLocalStorage() {
         this.rooms = JSON.parse(localStorage.getItem('rooms')) || [];
+        // Find the highest and lowest roomId
+        let highestRoomId = 0;
+        let lowestRoomId = Number.MAX_SAFE_INTEGER;
+
+        for (let room of this.rooms) {
+            if (room.roomId > highestRoomId) {
+                highestRoomId = room.roomId;
+            }
+            if (room.roomId < lowestRoomId) {
+                lowestRoomId = room.roomId;
+            }
+        }
+
+        // Set grid.this.currentRoomId to the highest roomId plus one
+        this.currentRoomId = highestRoomId + 1;
+
+        // Set the lowest roomId to the roomId input field
+        document.getElementById("startingRoomId").value = lowestRoomId;
+
+        if (this.rooms[0].zoneId) {
+            document.getElementById("zoneId").value = zeroPad(this.rooms[0].zoneId, 3);
+        }
+        this.drawRooms();
     }
 
     /**
@@ -1573,18 +1610,4 @@ const saveMap = () => {
     } else {
         alert("Grid is not defined");
     }
-};
-
-/**
- * Pads a number with leading zeros to a specified number of places.
- *
- * @param {number} num - The number to be padded.
- * @param {number} places - The number of places to pad to.
- * @return {string} - The padded number as a string.
- */
-const zeroPad = (num, places) => {
-    let absNum = Math.abs(num);
-    let sign = num < 0 ? '-' : '';
-    let zeroPadded = absNum.toString().padStart(places, '0');
-    return sign + zeroPadded;
 };
