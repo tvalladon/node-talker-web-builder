@@ -102,7 +102,7 @@ Feel free to pick any of these or suggest your own improvements!
 ## TODO
 
 - [x] Figure out how to handle up/down exits.
-- [ ] Add room props.
+- [x] Add room props.
 - [ ] Add form for editing zone values and settings.
 - [ ] Improve the UI/UX for the room editing form.
 - [ ] Create sample maps.
