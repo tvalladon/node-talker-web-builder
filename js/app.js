@@ -1494,6 +1494,7 @@ const loadMap = () => {
                     document.getElementById("zoneId").value = zeroPad(grid.rooms[0].zoneId, 3);
                 }
                 grid.drawRooms();
+                grid.saveToLocalStorage();
             } catch (error) {
                 alert("Error loading file: " + error.message);
             }
