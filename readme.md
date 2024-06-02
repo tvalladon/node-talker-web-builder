@@ -95,6 +95,7 @@ Here are some features we would love to see added:
 - Undo/redo functionality.
 - Performance optimizations for larger maps.
 - Tutorial and user guide.
+- Load images to replace background...
 
 Feel free to pick any of these or suggest your own improvements!
 
@@ -108,6 +109,7 @@ Feel free to pick any of these or suggest your own improvements!
 - [ ] Optimize performance for larger maps.
 - [ ] Add ability to move rooms while keeping connections intact.
 - [ ] Implement undo/redo functionality.
+- [ ] Load images to replace background.
 
 ## License
 This project is licensed under the MIT License.
