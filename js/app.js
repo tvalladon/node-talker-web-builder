@@ -251,7 +251,7 @@ class Grid {
                 if (targetRoom) {
                     const reverseDirection = this.getReverseDirection(direction);
                     const reciprocal = targetRoom.exits[reverseDirection] === sourceId;
-                    let color = reciprocal ? 'white' : 'yellow';
+                    let color = reciprocal ? 'green' : 'yellow';
                     if (sourceId === targetId) color = 'red';
 
                     const line = new Konva.Line({
@@ -260,7 +260,7 @@ class Grid {
                         strokeWidth: 1 * this.scale, // Adjust line width based on scale
                         lineCap: 'round',
                         lineJoin: 'round',
-                        opacity: 0.2,
+                        opacity: 0.25,
                     });
                     layer.add(line);
                 }
@@ -271,7 +271,7 @@ class Grid {
 
     /**
      * Draws the background of the stage using a rectangle shape.
-     * The background color is set to '#333' by default.
+     * The background color is set to '#474747' by default.
      */
     drawBackground() {
         const background = new Konva.Rect({
@@ -279,7 +279,7 @@ class Grid {
             y: 0,
             width: stage.width(),
             height: stage.height(),
-            fill: '#333',
+            fill: '#474747',
         });
         layer.add(background);
     }
@@ -352,7 +352,7 @@ class Grid {
                 this.offsetX, j * 20 * this.scale + this.offsetY,
                 this.totalGridSquares * 20 * this.scale + this.offsetX, j * 20 * this.scale + this.offsetY
             ],
-            stroke: '#444',
+            stroke: '#333',
             strokeWidth: 1,
         });
         layer.add(line);
@@ -437,7 +437,7 @@ class Grid {
                 i * 20 * this.scale + this.offsetX, this.offsetY,
                 i * 20 * this.scale + this.offsetX, this.totalGridSquares * 20 * this.scale + this.offsetY
             ],
-            stroke: '#444',
+            stroke: '#333',
             strokeWidth: 1,
         });
         layer.add(line);
