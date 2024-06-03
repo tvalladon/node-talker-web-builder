@@ -109,6 +109,7 @@ Feel free to pick any of these or suggest your own improvements!
 - [x] Figure out how to handle up/down exits.
 - [x] Add room props.
 - [x] Add ability to move rooms while keeping connections intact.
+- [ ] Add simulator terminal, so you can explore the zone while in the mapping software.
 - [ ] Add form for editing zone values and settings.
 - [ ] Improve the UI/UX for the room editing form.
 - [ ] Create sample maps.
