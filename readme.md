@@ -108,11 +108,11 @@ Feel free to pick any of these or suggest your own improvements!
 
 - [x] Figure out how to handle up/down exits.
 - [x] Add room props.
+- [x] Add ability to move rooms while keeping connections intact.
 - [ ] Add form for editing zone values and settings.
 - [ ] Improve the UI/UX for the room editing form.
 - [ ] Create sample maps.
 - [ ] Optimize performance for larger maps.
-- [x] Add ability to move rooms while keeping connections intact.
 - [ ] Implement undo/redo functionality.
 - [ ] Load images to replace background.
 
