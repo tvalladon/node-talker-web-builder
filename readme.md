@@ -88,7 +88,6 @@ If you have any questions or need guidance, don't hesitate to open an issue or r
 
 Here are some features we would love to see added:
 
-- Functionality move rooms using drag and drop.
 - Functionality to copy and paste rooms.
 - Improved UI/UX for the room editing form.
 - Bulk editing of room properties.
@@ -107,7 +106,7 @@ Feel free to pick any of these or suggest your own improvements!
 - [ ] Improve the UI/UX for the room editing form.
 - [ ] Create sample maps.
 - [ ] Optimize performance for larger maps.
-- [ ] Add ability to move rooms while keeping connections intact.
+- [x] Add ability to move rooms while keeping connections intact.
 - [ ] Implement undo/redo functionality.
 - [ ] Load images to replace background.
 

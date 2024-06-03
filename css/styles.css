@@ -175,6 +175,44 @@ body {
     margin-left: 5px;
 }
 
+#dpad-container {
+    position: fixed;
+    top: 0;
+    right: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    border-radius: 5px 0 0 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+}
+
+.dpad-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.dpad-button {
+    background: #f8f8f8;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin: 1px !important;
+    padding: 4px !important;
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.dpad-button[data-direction="left"] {
+    margin-right: 12px !important;
+}
+
+.dpad-button:hover {
+    background: #e8e8e8;
+}
+
 /* Modal Container */
 .modal {
     display: none; /* Hidden by default */

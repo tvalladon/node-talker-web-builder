@@ -1337,6 +1337,18 @@ class Grid {
             <input type="text" id="roomOwner" value="${room.owner}">
             <div id="exitsPlaceholder"><b>Exits</b> ${exitsHtml}</div>
             <div id="propsPlaceholder"><b>Props</b> ${propsHtml}</div>
+        </div>
+        <div id="dpad-container">
+            <div class="dpad-row">
+                <button class="dpad-button" data-direction="up">↑</button>
+            </div>
+            <div class="dpad-row">
+                <button class="dpad-button" data-direction="left">←</button>
+                <button class="dpad-button" data-direction="right">→</button>
+            </div>
+            <div class="dpad-row">
+                <button class="dpad-button" data-direction="down">↓</button>
+            </div>
         </div>`;
 
         const slideOutForm = document.getElementById('slideOutForm');
@@ -1354,6 +1366,29 @@ class Grid {
         document.querySelectorAll('.edit-prop').forEach(el => el.addEventListener('click', (e) => this.editProp(e, room)));
         document.querySelectorAll('.delete-prop').forEach(el => el.addEventListener('click', (e) => this.deleteProp(e, room)));
         document.querySelector('.add-prop').addEventListener('click', () => this.addProp(room));
+
+        // Add event listeners for D-pad buttons
+        document.querySelectorAll('.dpad-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const direction = button.getAttribute('data-direction');
+                switch (direction) {
+                    case 'up':
+                        room.gridY -= 1;
+                        break;
+                    case 'down':
+                        room.gridY += 1;
+                        break;
+                    case 'left':
+                        room.gridX -= 1;
+                        break;
+                    case 'right':
+                        room.gridX += 1;
+                        break;
+                }
+                this.drawGrid(); // Redraw the grid
+                this.saveToLocalStorage();
+            });
+        });
     }
 
     /**
