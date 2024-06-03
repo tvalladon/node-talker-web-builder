@@ -1718,6 +1718,11 @@ const movementCommands = [
     "wiggle", "wobble", "wriggle", "writhe", "zag", "zigzag"
 ];
 
+/**
+ * Appends the given text to the terminal, converting ANSI codes to HTML.
+ * 
+ * @param {string} text - The text to append to the terminal.
+ */
 function appendToTerminalText(text) {
     const terminalText = document.getElementById('terminalText');
     const terminalContent = document.getElementById('terminalContent');
@@ -1739,6 +1744,11 @@ function appendToTerminalText(text) {
  *
  * @return {void} - This method does not return a value.
  */
+/**
+ * Changes the room ID value of an input field.
+ *
+ * @param {HTMLElement} input - The input field element to change the room ID value for.
+ */
 const changeRoomId = (input) => {
     let roomIdValue = parseInt(input.value, 10);
     if (isNaN(roomIdValue) || roomIdValue > 999 || roomIdValue < -999) {
@@ -1754,6 +1764,11 @@ const changeRoomId = (input) => {
  *
  * @param {HTMLInputElement} input - The input field to update the zone ID for.
  * @return {void}
+ */
+/**
+ * Updates the zone ID for a given input field, and performs various additional actions if the zone ID is valid.
+ *
+ * @param {HTMLInputElement} input - The input field to update the zone ID for.
  */
 const changeZoneId = (input) => {
     let zoneIdValue = parseInt(input.value, 10);
@@ -1777,6 +1792,13 @@ const changeZoneId = (input) => {
  * @param {...*} values - The values to be excluded from the array.
  * @returns {Array} - A new array with the specified values removed.
  */
+/**
+ * Removes specified values from an array.
+ *
+ * @param {Array} array - The input array to be filtered.
+ * @param {...*} values - The values to be excluded from the array.
+ * @returns {Array} - A new array with the specified values removed.
+ */
 const exclude = (array, ...values) => {
     return array.filter(item => !values.includes(item));
 };
@@ -1786,6 +1808,9 @@ const exclude = (array, ...values) => {
  *
  * @return {undefined}
  */
+/**
+ * Logs the room information from the grid object to the console for debugging purposes.
+ */
 const debugRooms = () => {
     if (typeof grid !== 'undefined') {
         console.log(grid.rooms);
@@ -1794,6 +1819,11 @@ const debugRooms = () => {
     }
 };
 
+/**
+ * Displays the details of a room in the terminal.
+ * 
+ * @param {Object} room - The room object to display.
+ */
 function displayRoom(room) {
     // Mark the current room
     grid.rooms.forEach(r => delete r.isCurrent);
@@ -1814,6 +1844,13 @@ function displayRoom(room) {
     appendToTerminalText(roomText + exitsText);
 }
 
+/**
+ * Formats the given text by replacing custom tags and user-specific format specifiers.
+ * 
+ * @param {string} text - The text to format.
+ * @param {Object} user - The user object containing user-specific settings.
+ * @returns {string} - The formatted text.
+ */
 function formatText(text, user = {}) {
     // Replace custom tags for players, exits, interactable props, and commands
     text = text.replace(/\[p:(.+?)]/g, "<yellow>[<green>$1<yellow>]<reset>"); // Players
@@ -1849,6 +1886,9 @@ function formatText(text, user = {}) {
  *
  * @return {void}
  */
+/**
+ * Retrieves JSON representation of rooms from the grid object and logs it to the console.
+ */
 const jsonRooms = () => {
     if (typeof grid !== 'undefined') {
         console.log(JSON.stringify(grid.rooms));
@@ -1863,6 +1903,12 @@ const jsonRooms = () => {
  * On change of the input element, the function reads the selected file and attempts to parse it as JSON.
  * If successful, the function assigns the parsed data to the 'rooms' property of the 'grid' object and displays a success message.
  * If unable to parse the file as JSON, an error message is displayed.
+ */
+/**
+ * Loads a map from a JSON file selected by the user.
+ * Prompts the user to select a JSON file, reads the file, parses it as JSON, 
+ * and assigns the parsed data to the 'rooms' property of the 'grid' object.
+ * Updates the UI with the loaded map data.
  */
 const loadMap = () => {
     let input = document.createElement('input');
@@ -1913,6 +1959,10 @@ const loadMap = () => {
     input.click();
 };
 
+/**
+ * Clears the current map by resetting the 'rooms' array in the 'grid' object,
+ * clearing local storage, and redrawing the grid.
+ */
 const newMap = () => {
     grid.rooms = [];
     localStorage.clear();
@@ -1924,11 +1974,21 @@ const newMap = () => {
  *
  * @return {undefined}
  */
+/**
+ * Toggles the visibility of the menu by adding or removing the 'hidden' class.
+ */
 const openMenu = () => {
     var menu = document.getElementById('expanded-menu');
     menu.classList.toggle('hidden');
 };
 
+/**
+ * Parses the room description and replaces prop placeholders with their actual values.
+ * 
+ * @param {string} description - The room description to parse.
+ * @param {Object} props - The object containing prop key-value pairs.
+ * @returns {string} - The parsed description with prop placeholders replaced.
+ */
 const parseProps = (description, props) => {
     if (!description || !props) {
         return description;
@@ -1954,6 +2014,11 @@ const parseProps = (description, props) => {
 };
 
 
+/**
+ * Processes the user's command and performs the corresponding action.
+ * 
+ * @param {string} command - The user's command to process.
+ */
 function processCommand(command) {
     const currentRoom = grid.rooms.find(room => room.isCurrent);
     if (currentRoom) {
@@ -2012,6 +2077,11 @@ function processCommand(command) {
  * It deep copies the grid.rooms data, removes unnecessary fields, and creates a JSON file for each room.
  * The generated zip file is then downloaded by creating a link element and clicking it.
  */
+/**
+ * Processes the current map by generating a zip file containing JSON files for each room.
+ * Removes unnecessary fields from the room data and creates a JSON file for each room.
+ * Generates a zip file containing all the room JSON files and initiates its download.
+ */
 const processMap = () => {
     let zip = new JSZip();
 
@@ -2035,6 +2105,9 @@ const processMap = () => {
         });
 };
 
+/**
+ * Resets the terminal by clearing the terminal text.
+ */
 function resetTerminal() {
     document.getElementById('terminalText').textContent = '';
 }
@@ -2045,6 +2118,11 @@ function resetTerminal() {
  * and saves it as a JSON file with a specified filename.
  *
  * If the `grid` variable is not defined, an error message is logged to the console.
+ */
+/**
+ * Saves the current map data to a JSON file.
+ * Creates a deep copy of the room data from the 'grid' object,
+ * stringifies it, and initiates the download of the JSON file.
  */
 const saveMap = () => {
     if (typeof grid !== 'undefined') {
@@ -2064,6 +2142,9 @@ const saveMap = () => {
     }
 };
 
+/**
+ * Starts the terminal by displaying the first room.
+ */
 function startTerminal() {
     const firstRoom = grid.rooms[0];
     displayRoom(firstRoom);
