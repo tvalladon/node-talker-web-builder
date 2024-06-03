@@ -1551,6 +1551,29 @@ document.getElementById('zoneId').addEventListener('change', function () {
     }, 300); // delay in milliseconds
 });
 
+// Add event listener for the terminal icon
+document.getElementById('terminalIcon').addEventListener('click', () => {
+    document.getElementById('terminalPopover').classList.remove('hidden');
+    startTerminal();
+});
+
+// Add event listener to close the terminal
+document.getElementById('closeTerminal').addEventListener('click', () => {
+    document.getElementById('terminalPopover').classList.add('hidden');
+    resetTerminal();
+});
+
+// Add event listener for terminal input
+document.getElementById('terminalInput').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        const command = event.target.value.trim();
+        if (command) {
+            processCommand(command);
+            event.target.value = '';
+        }
+    }
+});
+
 // Initialize Konva
 const stage = new Konva.Stage({
     container: 'konva-container', // Use the ID of your Konva div container
@@ -1573,6 +1596,97 @@ window.addEventListener('resize', () => grid.handleResize());
 
 // Set the pan too to the selected tool on load
 grid.selectTool('pan');
+
+// Used for the simulated terminal.
+const directionMap = {
+    'north': 'north',
+    'n': 'north',
+    'south': 'south',
+    's': 'south',
+    'east': 'east',
+    'e': 'east',
+    'west': 'west',
+    'w': 'west',
+    'northeast': 'northeast',
+    'ne': 'northeast',
+    'northwest': 'northwest',
+    'nw': 'northwest',
+    'southeast': 'southeast',
+    'se': 'southeast',
+    'southwest': 'southwest',
+    'sw': 'southwest',
+    'up': 'up',
+    'u': 'up',
+    'down': 'down',
+    'd': 'down'
+};
+
+const formatSpecs = {
+    "<player_name>": (user) => `${user.firstName} ${user.lastName}` || "",
+    "<server_name>": "SERVER_NAME",
+    "<cls>": "\x1b[2J", // Clear screen
+    "<reset>": "\x1b[0m",
+    "<bold>": "\x1b[1m",
+    "<dim>": "\x1b[2m",
+    "<underline>": "\x1b[4m",
+    "<blink>": "\x1b[5m",
+    "<inverse>": "\x1b[7m",
+    "<hidden>": "\x1b[8m",
+    "<black>": "\x1b[30m",
+    "<red>": "\x1b[31m",
+    "<green>": "\x1b[32m",
+    "<yellow>": "\x1b[33m",
+    "<blue>": "\x1b[34m",
+    "<magenta>": "\x1b[35m",
+    "<cyan>": "\x1b[36m",
+    "<white>": "\x1b[37m",
+    "<rc>": `\x1b[${Math.floor(Math.random() * (36 - 31 + 1) + 31)}m`, // Random color
+    "<sl>": "\r\n", // Single new line
+    "<dl>": "\r\n\r\n", // Double new line
+    "<t>": "\t", // Tab
+    "<ht>": "    ", // Half Tab
+    "<zws>": "\u200B", // Zero width space
+};
+
+const fakeUser = {
+    firstName: "John",
+    lastName: "Doe",
+    supportsColor: true,
+    supportsHighAscii: true
+};
+
+// List of supported movement commands
+const movementCommands = [
+    "go", "abate", "amble", "bang", "bolt", "bounce", "bound", "burst", "bust", "cant", "canter", "caper", "careen",
+    "cavort", "circle", "clamber", "claw", "cleave", "climb", "coil", "collapse", "crawl", "creep", "crouch", "crush",
+    "curve", "dance", "dart", "dash", "descend", "dip", "dive", "double", "drop", "edge", "erupt", "escape", "fade",
+    "fall", "fight", "flit", "float", "flop", "flounce", "flow", "flutter", "fly", "frisk", "frolic", "gallop", "galumph",
+    "glide", "hike", "hobble", "hop", "hopscotch", "hover", "hunch", "hurry", "hurtle", "jog", "jump", "kneel", "kowtow",
+    "lean", "leap", "lie", "limp", "list", "loll", "lope", "lounge", "lower", "lunge", "lurch", "march", "meander",
+    "parade", "pirouette", "pivot", "plod", "plummet", "plunge", "pop", "pounce", "prance", "promenade", "prowl",
+    "pull", "race", "ramble", "retreat", "revolve", "rip", "rocket", "roll", "run", "rush", "sag", "sail", "saunter",
+    "scamper", "scatter", "scoot", "scurry", "scuttle", "shamble", "shiver", "shoot", "shuffle", "sidestep", "sink",
+    "skid", "skip", "skitter", "slide", "slink", "slither", "slog", "slouch", "slump", "smash", "snap", "sneak",
+    "snuggle", "soar", "spin", "spiral", "sprawl", "spring", "sprint", "squat", "squirm", "stagger", "stalk", "stamp",
+    "stoop", "stomp", "straggle", "stride", "stroll", "strut", "stumble", "swagger", "sway", "swerve", "swim", "swing",
+    "swoop", "tear", "tilt", "tip", "tiptoe", "toddle", "traipse", "tramp", "tread", "trip", "trot", "trudge", "twirl",
+    "twist", "vault", "waddle", "wade", "waft", "walk", "wander", "wane", "weave", "wheel", "whip", "whirl", "whisk", "whiz",
+    "wiggle", "wobble", "wriggle", "writhe", "zag", "zigzag"
+];
+
+function appendToTerminalText(text) {
+    const terminalText = document.getElementById('terminalText');
+    const terminalContent = document.getElementById('terminalContent');
+    const ansi_up = new AnsiUp();
+
+    // Convert ANSI codes to HTML
+    const html = ansi_up.ansi_to_html(text);
+
+    terminalText.innerHTML += html;
+
+    // Scroll the terminal content to the bottom after updating the text
+    terminalContent.scrollTop = terminalContent.scrollHeight;
+}
 
 /**
  * Changes the room ID value of an input field.
@@ -1635,6 +1749,56 @@ const debugRooms = () => {
         console.log("Grid is not defined");
     }
 };
+
+function displayRoom(room) {
+    // Mark the current room
+    grid.rooms.forEach(r => delete r.isCurrent);
+    room.isCurrent = true;
+
+    // Parse and format room details
+    const parsedDescription = parseProps(room.description, room.props);
+    const formattedDescription = formatText(parsedDescription, fakeUser);
+
+    // Get room details
+    const roomText = `\n${room.name}\n${formattedDescription}\n`;
+
+    // Get exits
+    const exits = Object.keys(room.exits).map(exit => `<yellow>[<cyan>${exit}<yellow>]<reset>`).join(' ');
+    const exitsText = formatText(`Exits: ${exits}\n`, fakeUser);
+
+    // Display room details and exits
+    appendToTerminalText(roomText + exitsText);
+}
+
+function formatText(text, user = {}) {
+    // Replace custom tags for players, exits, interactable props, and commands
+    text = text.replace(/\[p:(.+?)]/g, "<yellow>[<green>$1<yellow>]<reset>"); // Players
+    text = text.replace(/\[e:(.+?)]/g, "<yellow>[<cyan>$1<yellow>]<reset>"); // Exits
+    text = text.replace(/\[i:(.+?)]/g, "<yellow>[:<magenta>$1<yellow>:]<reset>"); // Interactable props
+    text = text.replace(/\[c:(.+?)]/g, '<yellow>"<green>$1<yellow>"<reset>'); // Commands
+    text = text.replace(/\[b:(.+?)]/g, "<yellow>(<green>$1<yellow>)<reset>"); // Brackets
+
+    // Replace user-specific format specifiers
+    for (const spec in formatSpecs) {
+        if (typeof formatSpecs[spec] === "function") {
+            text = text.split(spec).join(formatSpecs[spec](user));
+        } else {
+            text = text.split(spec).join(formatSpecs[spec]);
+        }
+    }
+
+    // Remove ANSI color codes if the user doesn't support colors
+    if (!user.supportsColor) {
+        text = text.replace(/\x1b\[\d+m/g, '');
+    }
+
+    // Strip high ASCII characters if the user has supportsHighAscii set to false
+    if (!user.supportsHighAscii) {
+        text = text.replace(/[\u0080-\uFFFF]/g, '');
+    }
+
+    return text;
+}
 
 /**
  * Retrieves JSON representation of rooms from the grid object.
@@ -1722,6 +1886,86 @@ const openMenu = () => {
     menu.classList.toggle('hidden');
 };
 
+const parseProps = (description, props) => {
+    if (!description || !props) {
+        return description;
+    }
+
+    let parsedDescription = description;
+
+    // Match text inside formatted blocks and replace only outside those blocks
+    const regex = /\[c:([^\]]+)\]|\b(\w+)\b/g;
+    parsedDescription = parsedDescription.replace(regex, (match, p1, p2) => {
+        if (p1) {
+            // Return the match for text inside formatted blocks
+            return `[c:${p1}]`;
+        } else if (p2 && props[p2.toLowerCase()]) {
+            // Replace the prop outside formatted blocks
+            return `[i:${p2}]`;
+        }
+        // Return the original word if it's not a prop
+        return match;
+    });
+
+    return parsedDescription;
+};
+
+
+function processCommand(command) {
+    const currentRoom = grid.rooms.find(room => room.isCurrent);
+    if (currentRoom) {
+        const parts = command.toLowerCase().split(' ');
+        const mainCommand = parts[0];
+        const arg = parts.slice(1).join(' ');
+
+        if (mainCommand === 'look' || mainCommand === 'l') {
+            if (arg) {
+                if (currentRoom.props && currentRoom.props[arg]) {
+                    appendToTerminalText(formatText(`${currentRoom.props[arg]}\n`, fakeUser));
+                } else {
+                    appendToTerminalText(formatText(`You don't see anything special about ${arg}.\n`, fakeUser));
+                }
+            } else {
+                const parsedDescription = parseProps(currentRoom.description, currentRoom.props);
+                const formattedDescription = formatText(parsedDescription, fakeUser);
+                appendToTerminalText(`${currentRoom.name}\n${formattedDescription}\n`);
+            }
+        } else if (movementCommands.includes(mainCommand) && parts[1]) {
+            const direction = directionMap[parts[1]];
+            if (direction) {
+                const targetRoomId = currentRoom.exits[direction];
+                if (targetRoomId) {
+                    const targetRoom = grid.rooms.find(room => `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}` === targetRoomId);
+                    if (targetRoom) {
+                        displayRoom(targetRoom);
+                    } else {
+                        appendToTerminalText(formatText(`You can't go ${direction}.\n`, fakeUser));
+                    }
+                } else {
+                    appendToTerminalText(formatText(`You can't go ${direction}.\n`, fakeUser));
+                }
+            } else {
+                appendToTerminalText(formatText(`Invalid direction: ${parts[1]}\n`, fakeUser));
+            }
+        } else if (directionMap[mainCommand]) {
+            const direction = directionMap[mainCommand];
+            const targetRoomId = currentRoom.exits[direction];
+            if (targetRoomId) {
+                const targetRoom = grid.rooms.find(room => `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}` === targetRoomId);
+                if (targetRoom) {
+                    displayRoom(targetRoom);
+                } else {
+                    appendToTerminalText(formatText(`You can't go ${direction}.\n`, fakeUser));
+                }
+            } else {
+                appendToTerminalText(formatText(`You can't go ${direction}.\n`, fakeUser));
+            }
+        } else {
+            appendToTerminalText(formatText(`Invalid command: ${command}\n`, fakeUser));
+        }
+    }
+}
+
 /**
  * This function generates a zip file containing JSON files for each room in the grid.
  * It deep copies the grid.rooms data, removes unnecessary fields, and creates a JSON file for each room.
@@ -1750,6 +1994,10 @@ const processMap = () => {
         });
 };
 
+function resetTerminal() {
+    document.getElementById('terminalText').textContent = '';
+}
+
 /**
  * Saves the current rooms data to a file.
  * This function deep copies the room data from the global variable `grid`,
@@ -1774,3 +2022,8 @@ const saveMap = () => {
         alert("Grid is not defined");
     }
 };
+
+function startTerminal() {
+    const firstRoom = grid.rooms[0];
+    displayRoom(firstRoom);
+}
