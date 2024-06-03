@@ -1114,7 +1114,6 @@ class Grid {
         room.description = document.getElementById('roomDescription').value;
         room.lockable = document.getElementById('roomLockable').checked;
         room.locked = document.getElementById('roomLocked').checked;
-        room.temporary = document.getElementById('roomTemporary').checked;
         room.solo = document.getElementById('roomSolo').checked || false; // Default to false
         room.creator = document.getElementById('roomCreator').value;
         room.owner = document.getElementById('roomOwner').value;
@@ -1322,10 +1321,6 @@ class Grid {
             <div>
                 <input type="checkbox" id="roomLocked" ${room.locked ? 'checked' : ''}>
                 <label for="roomLocked">Locked</label>            
-            </div>
-            <div>
-                <input type="checkbox" id="roomTemporary" ${room.temporary ? 'checked' : ''}>
-                <label for="roomTemporary">Temporary</label>
             </div>
             <div>
                 <input type="checkbox" id="roomSolo" ${room.solo ? 'checked' : ''}>
