@@ -76,6 +76,12 @@ The project uses the following libraries, which are included via CDN in the HTML
 - **Loading a Map:** Click on the "LOAD MAP" menu item and select a `.map` file to continue editing.
 - **Processing a Map:** Click on the "PROCESS MAP" menu item to generate a zip file containing JSON files for each room, which can be extracted to the server's `db/rooms` directory.
 
+## Example Map
+
+Here is an example map:
+
+![Example Map](images/example-map.png)
+
 ## Contributing
 
 We welcome contributions from the community to enhance the Node Talker Web Builder Tool! If you're interested in helping with development, please feel free to fork the repository, make your changes, and submit a pull request. Whether you're fixing bugs, adding new features, or improving documentation, your contributions are greatly appreciated.
