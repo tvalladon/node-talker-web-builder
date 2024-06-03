@@ -1760,11 +1760,11 @@ function displayRoom(room) {
     const formattedDescription = formatText(parsedDescription, fakeUser);
 
     // Get room details
-    const roomText = `\n${room.name}\n${formattedDescription}\n`;
+    const roomText = formatText(`\n<yellow>{ <cyan>${room.name} <yellow>}<reset>\n${formattedDescription}\n`, fakeUser);
 
     // Get exits
     const exits = Object.keys(room.exits).map(exit => `<yellow>[<cyan>${exit}<yellow>]<reset>`).join(' ');
-    const exitsText = formatText(`Exits: ${exits}\n`, fakeUser);
+    const exitsText = formatText(`Exits: ${exits}\n\n`, fakeUser);
 
     // Display room details and exits
     appendToTerminalText(roomText + exitsText);
@@ -1812,7 +1812,6 @@ const jsonRooms = () => {
         console.log("Grid is not defined");
     }
 }
-
 
 /**
  * Function to load a map from a JSON file.
