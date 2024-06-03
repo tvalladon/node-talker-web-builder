@@ -1925,9 +1925,7 @@ function processCommand(command) {
                     appendToTerminalText(formatText(`You don't see anything special about ${arg}.\n`, fakeUser));
                 }
             } else {
-                const parsedDescription = parseProps(currentRoom.description, currentRoom.props);
-                const formattedDescription = formatText(parsedDescription, fakeUser);
-                appendToTerminalText(`${currentRoom.name}\n${formattedDescription}\n`);
+                displayRoom(currentRoom);
             }
         } else if (movementCommands.includes(mainCommand) && parts[1]) {
             const direction = directionMap[parts[1]];
