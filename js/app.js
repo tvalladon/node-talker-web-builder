@@ -1317,6 +1317,12 @@ class Grid {
         stage.on("wheel", (e) => this.handleZoom(e));
     }
 
+    /**
+     * Displays the edit form for a given room.
+     * Generates the form HTML with the room's current data and adds event listeners for form interactions.
+     * 
+     * @param {Object} room - The room object to display the edit form for.
+     */
     showEditForm(room) {
         const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
         const formattedZoneId = String(room.zoneId).padStart(3, "0");
