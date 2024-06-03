@@ -26,6 +26,7 @@ The project uses the following libraries, which are included via CDN in the HTML
 - [Konva](https://cdnjs.cloudflare.com/ajax/libs/konva/9.0.0/konva.min.js) for canvas rendering.
 - [JSZip](https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js) for creating zip files.
 - [Font Awesome](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css) for icons.
+- [Ansi Up](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.https://cdn.jsdelivr.net/npm/ansi_up@4.0.4/ansi_up.min.js) for ansi colors in the exploration terminal.
 
 ## Getting Started
 
