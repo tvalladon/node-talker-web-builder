@@ -244,6 +244,8 @@ class Grid {
      * @returns {void} - This method does not return a value.
      */
     drawConnections() {
+        const drawnConnections = new Set();
+
         for (let room of this.rooms) {
             const sourceId = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
             Object.entries(room.exits).forEach(([direction, targetId]) => {
@@ -254,20 +256,62 @@ class Grid {
                     let color = reciprocal ? 'green' : 'yellow';
                     if (sourceId === targetId) color = 'red';
 
-                    const line = new Konva.Line({
-                        points: this.getLinePoints(room, targetRoom, direction),
-                        stroke: color,
-                        strokeWidth: 1 * this.scale, // Adjust line width based on scale
-                        lineCap: 'round',
-                        lineJoin: 'round',
-                        opacity: 0.25,
-                    });
-                    layer.add(line);
+                    const connectionId = sourceId < targetId ? `${sourceId}-${targetId}` : `${targetId}-${sourceId}`;
+                    if (reciprocal && drawnConnections.has(connectionId)) {
+                        return; // Skip drawing if the reciprocal connection is already drawn
+                    }
+                    drawnConnections.add(connectionId);
+
+                    const points = this.getLinePoints(room, targetRoom, direction);
+                    this.drawDashedArrowLine(points, color, color === 'yellow');
                 }
             });
         }
         layer.draw();
     }
+
+    drawDashedArrowLine(points, color, hasArrow) {
+        const [sourceX, sourceY, targetX, targetY] = points;
+        const arrowPosition = 0.05; // Adjust this value to change the arrow position along the line (0 to 1)
+        const arrowX = sourceX + arrowPosition * (targetX - sourceX);
+        const arrowY = sourceY + arrowPosition * (targetY - sourceY);
+
+        // Calculate arrow direction and length
+        const arrowLength = 2 * this.scale; // Scale the arrow length
+        const arrowWidth = 2 * this.scale; // Scale the arrow width
+        const angle = Math.atan2(targetY - sourceY, targetX - sourceX);
+        const arrowTipX = arrowX + (arrowLength / 2) * Math.cos(angle);
+        const arrowTipY = arrowY + (arrowLength / 2) * Math.sin(angle);
+
+        // Draw the dashed line
+        const dashedLine = new Konva.Line({
+            points: [sourceX, sourceY, targetX, targetY],
+            stroke: color,
+            strokeWidth: 1 * this.scale,
+            lineCap: 'square',
+            lineJoin: 'square',
+            dash: [.5 * this.scale, 2 * this.scale], // Scale the dash pattern
+            opacity: 0.5,
+        });
+        layer.add(dashedLine);
+
+        // Draw the arrowhead at the configured position if hasArrow is true
+        if (hasArrow) {
+            const arrow = new Konva.Arrow({
+                points: [arrowX, arrowY, arrowTipX, arrowTipY],
+                stroke: color,
+                fill: color,
+                strokeWidth: 1 * this.scale,
+                lineCap: 'square',
+                lineJoin: 'square',
+                pointerLength: arrowLength,
+                pointerWidth: arrowWidth,
+                opacity: 0.5,
+            });
+            layer.add(arrow);
+        }
+    }
+
 
     /**
      * Draws the background of the stage using a rectangle shape.
