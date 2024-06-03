@@ -83,6 +83,12 @@ Here is an example map:
 
 ![Example Map](images/example-map.png)
 
+## Terminal Example
+
+Here is an example of the exploration terminal:
+
+![Example Terminal](images/term.png)
+
 ## Contributing
 
 We welcome contributions from the community to enhance the Node Talker Web Builder Tool! If you're interested in helping with development, please feel free to fork the repository, make your changes, and submit a pull request. Whether you're fixing bugs, adding new features, or improving documentation, your contributions are greatly appreciated.
