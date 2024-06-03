@@ -7,8 +7,8 @@
  */
 const zeroPad = (num, places) => {
     let absNum = Math.abs(num);
-    let sign = num < 0 ? '-' : '';
-    let zeroPadded = absNum.toString().padStart(places, '0');
+    let sign = num < 0 ? "-" : "";
+    let zeroPadded = absNum.toString().padStart(places, "0");
     return sign + zeroPadded;
 };
 
@@ -66,7 +66,7 @@ class Grid {
         this.currentRoomId = this.startingRoomId;
 
         this.setupEventListeners();
-        window.addEventListener('resize', () => this.handleResize());
+        window.addEventListener("resize", () => this.handleResize());
 
         if (this.isDataInLocalStorage()) {
             this.loadFromLocalStorage();
@@ -81,27 +81,29 @@ class Grid {
      */
     addExit(room) {
         const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
-        const roomOptions = this.rooms.map(r => {
-            const roomId = String(r.roomId).padStart(3, '0');
-            const zoneId = String(r.zoneId).padStart(3, '0');
-            const roomName = r.name ? ` (${r.name})` : '';
-            return `<option value="${zoneId}:${roomId}">${zoneId}:${roomId}${roomName}</option>`;
-        }).join('');
+        const roomOptions = this.rooms
+            .map((r) => {
+                const roomId = String(r.roomId).padStart(3, "0");
+                const zoneId = String(r.zoneId).padStart(3, "0");
+                const roomName = r.name ? ` (${r.name})` : "";
+                return `<option value="${zoneId}:${roomId}">${zoneId}:${roomId}${roomName}</option>`;
+            })
+            .join("");
 
         const newExitHtml = `<div class="exit-row new-exit">
-            <select class="edit-direction">${directions.map(dir => `<option value="${dir}">${dir}</option>`).join('')}</select>
+            <select class="edit-direction">${directions.map((dir) => `<option value="${dir}">${dir}</option>`).join("")}</select>
             <select class="edit-target">${roomOptions}</select>
             <span style="right: 0;position: absolute;margin-right: 20px;">
                 <i class="fas fa-save save-exit"></i>
-                <i class="fas fa-times cancel-edit"></i>            
+                <i class="fas fa-times cancel-edit"></i>
             </span>
         </div>`;
 
-        document.querySelector('#exitsPlaceholder').insertAdjacentHTML('beforeend', newExitHtml);
+        document.querySelector("#exitsPlaceholder").insertAdjacentHTML("beforeend", newExitHtml);
 
-        const newExitRow = document.querySelector('.new-exit');
-        newExitRow.querySelector('.save-exit').addEventListener('click', () => this.saveNewExit(newExitRow, room));
-        newExitRow.querySelector('.cancel-edit').addEventListener('click', () => newExitRow.remove());
+        const newExitRow = document.querySelector(".new-exit");
+        newExitRow.querySelector(".save-exit").addEventListener("click", () => this.saveNewExit(newExitRow, room));
+        newExitRow.querySelector(".cancel-edit").addEventListener("click", () => newExitRow.remove());
     }
 
     /**
@@ -119,11 +121,11 @@ class Grid {
             </span>
         </div>`;
 
-        document.querySelector('#propsPlaceholder').insertAdjacentHTML('beforeend', newPropHtml);
+        document.querySelector("#propsPlaceholder").insertAdjacentHTML("beforeend", newPropHtml);
 
-        const newPropRow = document.querySelector('.new-prop');
-        newPropRow.querySelector('.save-prop').addEventListener('click', () => this.saveNewProp(newPropRow, room));
-        newPropRow.querySelector('.cancel-edit').addEventListener('click', () => newPropRow.remove());
+        const newPropRow = document.querySelector(".new-prop");
+        newPropRow.querySelector(".save-prop").addEventListener("click", () => this.saveNewProp(newPropRow, room));
+        newPropRow.querySelector(".cancel-edit").addEventListener("click", () => newPropRow.remove());
     }
 
     /**
@@ -169,8 +171,8 @@ class Grid {
         <i class="fas fa-edit edit-exit"></i>
         <i class="fas fa-trash-alt delete-exit"></i>`;
 
-        exitRow.querySelector('.edit-exit').addEventListener('click', (e) => this.editExit(e, room));
-        exitRow.querySelector('.delete-exit').addEventListener('click', (e) => this.deleteExit(e, room));
+        exitRow.querySelector(".edit-exit").addEventListener("click", (e) => this.editExit(e, room));
+        exitRow.querySelector(".delete-exit").addEventListener("click", (e) => this.deleteExit(e, room));
     }
 
     /**
@@ -187,8 +189,8 @@ class Grid {
            <i class="fas fa-trash-alt delete-prop"></i>
         </span>`;
 
-        propRow.querySelector('.edit-prop').addEventListener('click', (e) => this.editProp(e, room));
-        propRow.querySelector('.delete-prop').addEventListener('click', (e) => this.deleteProp(e, room));
+        propRow.querySelector(".edit-prop").addEventListener("click", (e) => this.editProp(e, room));
+        propRow.querySelector(".delete-prop").addEventListener("click", (e) => this.deleteProp(e, room));
     }
 
     /**
@@ -197,10 +199,10 @@ class Grid {
      * @return {void} - This method does not return any value.
      */
     closeEditForm() {
-        const slideOutForm = document.getElementById('slideOutForm');
-        slideOutForm.classList.remove('visible');
-        slideOutForm.classList.add('hidden');
-        slideOutForm.innerHTML = ''; // Clear form content
+        const slideOutForm = document.getElementById("slideOutForm");
+        slideOutForm.classList.remove("visible");
+        slideOutForm.classList.add("hidden");
+        slideOutForm.innerHTML = ""; // Clear form content
         this.saveToLocalStorage();
     }
 
@@ -212,8 +214,8 @@ class Grid {
      * @returns {void}
      */
     deleteExit(e, room) {
-        const exitRow = e.target.closest('.exit-row');
-        const direction = exitRow.getAttribute('data-direction');
+        const exitRow = e.target.closest(".exit-row");
+        const direction = exitRow.getAttribute("data-direction");
 
         delete room.exits[direction];
 
@@ -228,8 +230,8 @@ class Grid {
      * @param {object} room - The room object containing the prop to delete.
      */
     deleteProp(e, room) {
-        const propRow = e.target.closest('.prop-row');
-        const propKey = propRow.getAttribute('data-key');
+        const propRow = e.target.closest(".prop-row");
+        const propKey = propRow.getAttribute("data-key");
 
         delete room.props[propKey];
         this.showEditForm(room);
@@ -247,14 +249,14 @@ class Grid {
         const drawnConnections = new Set();
 
         for (let room of this.rooms) {
-            const sourceId = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+            const sourceId = `${String(room.zoneId).padStart(3, "0")}:${String(room.roomId).padStart(3, "0")}`;
             Object.entries(room.exits).forEach(([direction, targetId]) => {
-                const targetRoom = this.rooms.find(r => `${String(r.zoneId).padStart(3, '0')}:${String(r.roomId).padStart(3, '0')}` === targetId);
+                const targetRoom = this.rooms.find((r) => `${String(r.zoneId).padStart(3, "0")}:${String(r.roomId).padStart(3, "0")}` === targetId);
                 if (targetRoom) {
                     const reverseDirection = this.getReverseDirection(direction);
                     const reciprocal = targetRoom.exits[reverseDirection] === sourceId;
-                    let color = reciprocal ? 'green' : 'yellow';
-                    if (sourceId === targetId) color = 'red';
+                    let color = reciprocal ? "green" : "yellow";
+                    if (sourceId === targetId) color = "red";
 
                     const connectionId = sourceId < targetId ? `${sourceId}-${targetId}` : `${targetId}-${sourceId}`;
                     if (reciprocal && drawnConnections.has(connectionId)) {
@@ -263,7 +265,7 @@ class Grid {
                     drawnConnections.add(connectionId);
 
                     const points = this.getLinePoints(room, targetRoom, direction);
-                    this.drawDashedArrowLine(points, color, color === 'yellow');
+                    this.drawDashedArrowLine(points, color, color === "yellow");
                 }
             });
         }
@@ -288,9 +290,9 @@ class Grid {
             points: [sourceX, sourceY, targetX, targetY],
             stroke: color,
             strokeWidth: 1 * this.scale,
-            lineCap: 'square',
-            lineJoin: 'square',
-            dash: [.5 * this.scale, 2 * this.scale], // Scale the dash pattern
+            lineCap: "square",
+            lineJoin: "square",
+            dash: [0.5 * this.scale, 2 * this.scale], // Scale the dash pattern
             opacity: 0.5,
         });
         layer.add(dashedLine);
@@ -302,8 +304,8 @@ class Grid {
                 stroke: color,
                 fill: color,
                 strokeWidth: 1 * this.scale,
-                lineCap: 'square',
-                lineJoin: 'square',
+                lineCap: "square",
+                lineJoin: "square",
                 pointerLength: arrowLength,
                 pointerWidth: arrowWidth,
                 opacity: 0.5,
@@ -311,7 +313,6 @@ class Grid {
             layer.add(arrow);
         }
     }
-
 
     /**
      * Draws the background of the stage using a rectangle shape.
@@ -323,7 +324,7 @@ class Grid {
             y: 0,
             width: stage.width(),
             height: stage.height(),
-            fill: '#474747',
+            fill: "#474747",
         });
         layer.add(background);
     }
@@ -343,7 +344,7 @@ class Grid {
         this.drawRooms();
         this.drawConnections();
 
-        if (this.isDrawing && this.selectedTool === 'room') {
+        if (this.isDrawing && this.selectedTool === "room") {
             this.highlightTemporaryRoom();
         } else if (!this.isDrawing && !this.isPanning) {
             this.highlightMouseSquare();
@@ -358,9 +359,9 @@ class Grid {
      * @returns {void}
      */
     drawGridLines() {
-        let minGridX = Math.max(Math.floor((-this.offsetX) / (20 * this.scale)), 0);
+        let minGridX = Math.max(Math.floor(-this.offsetX / (20 * this.scale)), 0);
         let maxGridX = Math.min(Math.ceil((stage.width() - this.offsetX) / (20 * this.scale)), this.totalGridSquares);
-        let minGridY = Math.max(Math.floor((-this.offsetY) / (20 * this.scale)), 0);
+        let minGridY = Math.max(Math.floor(-this.offsetY / (20 * this.scale)), 0);
         let maxGridY = Math.min(Math.ceil((stage.height() - this.offsetY) / (20 * this.scale)), this.totalGridSquares);
 
         for (let i = minGridX; i <= maxGridX; i++) {
@@ -392,11 +393,8 @@ class Grid {
      */
     drawHorizontalLine(j) {
         let line = new Konva.Line({
-            points: [
-                this.offsetX, j * 20 * this.scale + this.offsetY,
-                this.totalGridSquares * 20 * this.scale + this.offsetX, j * 20 * this.scale + this.offsetY
-            ],
-            stroke: '#333',
+            points: [this.offsetX, j * 20 * this.scale + this.offsetY, this.totalGridSquares * 20 * this.scale + this.offsetX, j * 20 * this.scale + this.offsetY],
+            stroke: "#333",
             strokeWidth: 1,
         });
         layer.add(line);
@@ -414,8 +412,8 @@ class Grid {
             x: (20 * i + 1) * this.scale + this.offsetX,
             y: (20 * j + 1) * this.scale + this.offsetY,
             text: `${i}, ${j}`,
-            fontSize: .75 * this.scale, // Adjust font size based on scale
-            fill: (i === 500 && j === 500) ? 'black' : 'rgba(100, 100, 100, 1)'
+            fontSize: 0.75 * this.scale, // Adjust font size based on scale
+            fill: i === 500 && j === 500 ? "black" : "rgba(100, 100, 100, 1)",
         });
         layer.add(text);
     }
@@ -431,26 +429,26 @@ class Grid {
      * @return {void}
      */
     drawRoom(room) {
-        const roomId = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+        const roomId = `${String(room.zoneId).padStart(3, "0")}:${String(room.roomId).padStart(3, "0")}`;
         const roomName = `${room.name}`;
         const rect = new Konva.Rect({
             x: room.gridX * 20 * this.scale + this.offsetX,
             y: room.gridY * 20 * this.scale + this.offsetY,
             width: 20 * this.scale,
             height: 20 * this.scale,
-            fill: 'white',
-            stroke: 'black',
+            fill: "white",
+            stroke: "black",
             strokeWidth: 1,
         });
 
         const text = new Konva.Text({
-            x: room.gridX * 20 * this.scale + this.offsetX + (1.75 * this.scale),
-            y: room.gridY * 20 * this.scale + this.offsetY + (1.75 * this.scale), // Center text vertically
-            text: `${roomName ? '{ ' + roomName + ' } ' : ''}[${roomId}]\n\n${room.description}`,
+            x: room.gridX * 20 * this.scale + this.offsetX + 1.75 * this.scale,
+            y: room.gridY * 20 * this.scale + this.offsetY + 1.75 * this.scale, // Center text vertically
+            text: `${roomName ? "{ " + roomName + " } " : ""}[${roomId}]\n\n${room.description}`,
             fontSize: 0.25 * this.scale, // Adjust font size to fit within the room
             width: 16.5 * this.scale,
-            verticalAlign: 'middle', // Ensure text is centered vertically
-            wrap: 'word', // Ensure word wrapping
+            verticalAlign: "middle", // Ensure text is centered vertically
+            wrap: "word", // Ensure word wrapping
         });
 
         layer.add(rect);
@@ -477,11 +475,8 @@ class Grid {
      */
     drawVerticalLine(i) {
         let line = new Konva.Line({
-            points: [
-                i * 20 * this.scale + this.offsetX, this.offsetY,
-                i * 20 * this.scale + this.offsetX, this.totalGridSquares * 20 * this.scale + this.offsetY
-            ],
-            stroke: '#333',
+            points: [i * 20 * this.scale + this.offsetX, this.offsetY, i * 20 * this.scale + this.offsetX, this.totalGridSquares * 20 * this.scale + this.offsetY],
+            stroke: "#333",
             strokeWidth: 1,
         });
         layer.add(line);
@@ -494,27 +489,29 @@ class Grid {
      * @param {Room} room - The room object.
      */
     editExit(e, room) {
-        const exitRow = e.target.closest('.exit-row');
-        const direction = exitRow.getAttribute('data-direction');
+        const exitRow = e.target.closest(".exit-row");
+        const direction = exitRow.getAttribute("data-direction");
         const target = room.exits[direction];
         const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
 
-        const roomOptions = this.rooms.map(r => {
-            const roomId = String(r.roomId).padStart(3, '0');
-            const zoneId = String(r.zoneId).padStart(3, '0');
-            const roomName = r.name ? ` (${r.name})` : '';
-            return `<option value="${zoneId}:${roomId}" ${zoneId}:${roomId} === target ? 'selected' : ''}>${zoneId}:${roomId}${roomName}</option>`;
-        }).join('');
+        const roomOptions = this.rooms
+            .map((r) => {
+                const roomId = String(r.roomId).padStart(3, "0");
+                const zoneId = String(r.zoneId).padStart(3, "0");
+                const roomName = r.name ? ` (${r.name})` : "";
+                return `<option value="${zoneId}:${roomId}" ${zoneId}:${roomId} === target ? 'selected' : ''}>${zoneId}:${roomId}${roomName}</option>`;
+            })
+            .join("");
 
-        const editHtml = `<select class="edit-direction">${directions.map(dir => `<option value="${dir}" ${dir === direction ? 'selected' : ''}>${dir}</option>`).join('')}</select>
+        const editHtml = `<select class="edit-direction">${directions.map((dir) => `<option value="${dir}" ${dir === direction ? "selected" : ""}>${dir}</option>`).join("")}</select>
         <select class="edit-target">${roomOptions}</select>
         <i class="fas fa-save save-exit"></i>
         <i class="fas fa-times cancel-edit"></i>`;
 
         exitRow.innerHTML = editHtml;
 
-        exitRow.querySelector('.save-exit').addEventListener('click', () => this.saveExit(exitRow, room));
-        exitRow.querySelector('.cancel-edit').addEventListener('click', () => this.cancelEditExit(exitRow, direction, target));
+        exitRow.querySelector(".save-exit").addEventListener("click", () => this.saveExit(exitRow, room));
+        exitRow.querySelector(".cancel-edit").addEventListener("click", () => this.cancelEditExit(exitRow, direction, target));
 
         this.saveToLocalStorage();
     }
@@ -526,8 +523,8 @@ class Grid {
      * @param {object} room - The room object containing the prop to edit.
      */
     editProp(e, room) {
-        const propRow = e.target.closest('.prop-row');
-        const propKey = propRow.getAttribute('data-key');
+        const propRow = e.target.closest(".prop-row");
+        const propKey = propRow.getAttribute("data-key");
         const propValue = room.props[propKey];
 
         const editHtml = `<input type="text" class="edit-prop-key" value="${propKey}">
@@ -539,8 +536,8 @@ class Grid {
 
         propRow.innerHTML = editHtml;
 
-        propRow.querySelector('.save-prop').addEventListener('click', () => this.saveProp(propRow, room, propKey));
-        propRow.querySelector('.cancel-edit').addEventListener('click', () => this.cancelEditProp(propRow, propKey, propValue));
+        propRow.querySelector(".save-prop").addEventListener("click", () => this.saveProp(propRow, room, propKey));
+        propRow.querySelector(".cancel-edit").addEventListener("click", () => this.cancelEditProp(propRow, propKey, propValue));
     }
 
     /**
@@ -554,7 +551,7 @@ class Grid {
         let gridX = Math.floor((x - this.offsetX) / (20 * this.scale));
         let gridY = Math.floor((y - this.offsetY) / (20 * this.scale));
 
-        let room = this.rooms.find(room => room.gridX === gridX && room.gridY === gridY);
+        let room = this.rooms.find((room) => room.gridX === gridX && room.gridY === gridY);
         if (room) {
             this.showEditForm(room);
         }
@@ -570,15 +567,15 @@ class Grid {
     eraseRoom(x, y) {
         let roomX = Math.floor((x - this.offsetX) / (20 * this.scale));
         let roomY = Math.floor((y - this.offsetY) / (20 * this.scale));
-        let roomIndex = this.rooms.findIndex(room => room.gridX === roomX && room.gridY === roomY);
+        let roomIndex = this.rooms.findIndex((room) => room.gridX === roomX && room.gridY === roomY);
         if (roomIndex > -1) {
             // Get the roomId and zoneId
             const roomId = this.rooms[roomIndex].roomId;
             const zoneId = this.rooms[roomIndex].roomId;
 
             // Remove any exits that point to this room
-            this.rooms.forEach(room => {
-                Object.keys(room.exits).forEach(exit => {
+            this.rooms.forEach((room) => {
+                Object.keys(room.exits).forEach((exit) => {
                     if (room.exits[exit] === `${zeroPad(zoneId, 3)}:${zeroPad(roomId, 3)}`) {
                         delete room.exits[exit];
                     }
@@ -598,7 +595,7 @@ class Grid {
      * @returns {number} A unique room ID for a new room.
      */
     generateRoomId() {
-        let roomIds = this.rooms.map(room => room.roomId);
+        let roomIds = this.rooms.map((room) => room.roomId);
         for (let i = this.startingRoomId; i <= this.currentRoomId; i++) {
             if (!roomIds.includes(i)) {
                 return i;
@@ -614,14 +611,14 @@ class Grid {
      */
     getHighlightColor() {
         switch (this.selectedTool) {
-            case 'eraser':
-                return 'rgba(255, 0, 0, 0.5)';
-            case 'room':
-                return 'rgba(0, 255, 0, 0.5)';
-            case 'edit':
-                return 'rgba(0, 0, 255, 0.5)';
-            case 'pan':
-                return 'rgba(255, 255, 0, 0.5)';
+            case "eraser":
+                return "rgba(255, 0, 0, 0.5)";
+            case "room":
+                return "rgba(0, 255, 0, 0.5)";
+            case "edit":
+                return "rgba(0, 0, 255, 0.5)";
+            case "pan":
+                return "rgba(255, 255, 0, 0.5)";
         }
     }
 
@@ -642,25 +639,25 @@ class Grid {
         let adjustment = 10 * this.scale; // Adjust for room size
 
         switch (direction) {
-            case 'up':
+            case "up":
                 return [sourceX - 5 * this.scale, sourceY - adjustment, targetX + 5 * this.scale, targetY + adjustment];
-            case 'down':
+            case "down":
                 return [sourceX + 5 * this.scale, sourceY + adjustment, targetX - 5 * this.scale, targetY - adjustment];
-            case 'north':
+            case "north":
                 return [sourceX, sourceY - adjustment, targetX, targetY + adjustment];
-            case 'south':
+            case "south":
                 return [sourceX, sourceY + adjustment, targetX, targetY - adjustment];
-            case 'east':
+            case "east":
                 return [sourceX + adjustment, sourceY, targetX - adjustment, targetY];
-            case 'west':
+            case "west":
                 return [sourceX - adjustment, sourceY, targetX + adjustment, targetY];
-            case 'northeast':
+            case "northeast":
                 return [sourceX + adjustment, sourceY - adjustment, targetX - adjustment, targetY + adjustment];
-            case 'northwest':
+            case "northwest":
                 return [sourceX - adjustment, sourceY - adjustment, targetX + adjustment, targetY + adjustment];
-            case 'southeast':
+            case "southeast":
                 return [sourceX + adjustment, sourceY + adjustment, targetX - adjustment, targetY - adjustment];
-            case 'southwest':
+            case "southwest":
                 return [sourceX - adjustment, sourceY + adjustment, targetX + adjustment, targetY - adjustment];
             default:
                 return [sourceX, sourceY, targetX, targetY];
@@ -675,16 +672,16 @@ class Grid {
      */
     getReverseDirection(direction) {
         const reverseMap = {
-            north: 'south',
-            south: 'north',
-            east: 'west',
-            west: 'east',
-            up: 'down',
-            down: 'up',
-            northeast: 'southwest',
-            southwest: 'northeast',
-            northwest: 'southeast',
-            southeast: 'northwest'
+            north: "south",
+            south: "north",
+            east: "west",
+            west: "east",
+            up: "down",
+            down: "up",
+            northeast: "southwest",
+            southwest: "northeast",
+            northwest: "southeast",
+            southeast: "northwest",
         };
         return reverseMap[direction];
     }
@@ -701,7 +698,7 @@ class Grid {
         }
 
         switch (e.key) {
-            case ' ':
+            case " ":
                 if (this.scale >= 30) {
                     this.zoomToMouse(1);
                 } else {
@@ -709,22 +706,22 @@ class Grid {
                 }
                 this.drawGrid();
                 break;
-            case 'Escape':
-                this.selectTool('pan');
+            case "Escape":
+                this.selectTool("pan");
                 break;
-            case 'Tab':
+            case "Tab":
                 e.preventDefault();
                 switch (this.selectedTool) {
-                    case 'pan':
-                        this.selectTool('room');
+                    case "pan":
+                        this.selectTool("room");
                         break;
-                    case 'room':
-                        this.selectTool('edit');
+                    case "room":
+                        this.selectTool("edit");
                         break;
-                    case 'edit':
-                        this.selectTool('eraser');
+                    case "edit":
+                        this.selectTool("eraser");
                         break;
-                    case 'eraser':
+                    case "eraser":
                         this.selectTool("pan");
                         break;
                 }
@@ -741,16 +738,16 @@ class Grid {
      */
     handleMouseDown(x, y) {
         switch (this.selectedTool) {
-            case 'room':
+            case "room":
                 this.startDrawing(x, y);
                 break;
-            case 'eraser':
+            case "eraser":
                 this.eraseRoom(x, y);
                 break;
-            case 'edit':
+            case "edit":
                 this.editRoom(x, y);
                 break;
-            case 'pan':
+            case "pan":
                 this.panStart(x, y);
                 break;
         }
@@ -767,11 +764,11 @@ class Grid {
      * @returns {void}
      */
     handleMouseUp() {
-        if (this.isDrawing && this.selectedTool === 'room') {
+        if (this.isDrawing && this.selectedTool === "room") {
             let gridX = this.temporaryRoomX;
             let gridY = this.temporaryRoomY;
 
-            let existingRoom = this.rooms.find(room => room.gridX === gridX && room.gridY === gridY);
+            let existingRoom = this.rooms.find((room) => room.gridX === gridX && room.gridY === gridY);
             if (!existingRoom) {
                 let roomId = this.generateRoomId(); // Generate roomId
                 let zoneId = parseInt(this.zoneId, 10); // Ensure zoneId is an integer
@@ -842,7 +839,7 @@ class Grid {
                 y: 500 * 20 * this.scale + this.offsetY,
                 width: 20 * this.scale,
                 height: 20 * this.scale,
-                fill: 'rgba(100, 100, 100, 1)',
+                fill: "rgba(100, 100, 100, 1)",
             });
             layer.add(rect);
         }
@@ -859,7 +856,7 @@ class Grid {
         this.mouseX = pos.x;
         this.mouseY = pos.y;
 
-        if (this.isDrawing && this.selectedTool === 'room') {
+        if (this.isDrawing && this.selectedTool === "room") {
             this.updateTemporaryRoom(pos.x, pos.y);
         } else if (this.isPanning) {
             this.panMove(pos.x, pos.y);
@@ -877,7 +874,7 @@ class Grid {
      * @returns {void}
      */
     highlightMouseSquare() {
-        layer.find('.highlight').forEach(node => node.destroy()); // Clear previous highlights
+        layer.find(".highlight").forEach((node) => node.destroy()); // Clear previous highlights
 
         let highlightX = Math.floor((this.mouseX - this.offsetX) / (20 * this.scale));
         let highlightY = Math.floor((this.mouseY - this.offsetY) / (20 * this.scale));
@@ -889,7 +886,7 @@ class Grid {
                 width: 20 * this.scale,
                 height: 20 * this.scale,
                 fill: this.getHighlightColor(),
-                name: 'highlight' // Tagging the rectangle for easy removal later
+                name: "highlight", // Tagging the rectangle for easy removal later
             });
 
             layer.add(rect);
@@ -903,13 +900,13 @@ class Grid {
      * @returns {void}
      */
     highlightTemporaryRoom() {
-        if (this.selectedTool === 'room') {
+        if (this.selectedTool === "room") {
             const rect = new Konva.Rect({
                 x: this.temporaryRoomX * 20 * this.scale + this.offsetX,
                 y: this.temporaryRoomY * 20 * this.scale + this.offsetY,
                 width: 20 * this.scale,
                 height: 20 * this.scale,
-                fill: 'rgba(0, 255, 0, 0.5)',
+                fill: "rgba(0, 255, 0, 0.5)",
             });
 
             layer.add(rect);
@@ -924,7 +921,7 @@ class Grid {
      * @return {void}
      */
     initializeGrid() {
-        this.zoneId = document.getElementById('zoneId').value;
+        this.zoneId = document.getElementById("zoneId").value;
         this.scale = 1;
         this.offsetX = this.calculateOffsetX();
         this.offsetY = this.calculateOffsetY();
@@ -937,7 +934,7 @@ class Grid {
      * @returns {boolean} - Returns true if the data ('rooms') is stored in the local storage, otherwise false.
      */
     isDataInLocalStorage() {
-        return localStorage.getItem('rooms') !== null;
+        return localStorage.getItem("rooms") !== null;
     }
 
     /**
@@ -946,8 +943,8 @@ class Grid {
      * @returns {boolean} True if the edit form is open, false otherwise.
      */
     isEditFormOpen() {
-        const slideOutForm = document.getElementById('slideOutForm');
-        return slideOutForm && slideOutForm.classList.contains('visible');
+        const slideOutForm = document.getElementById("slideOutForm");
+        return slideOutForm && slideOutForm.classList.contains("visible");
     }
 
     /**
@@ -958,7 +955,7 @@ class Grid {
      * @returns {boolean} - Returns true if there is a room at the specified grid coordinates, false otherwise.
      */
     isRoomAt(gridX, gridY) {
-        return this.rooms.some(room => room.gridX === gridX && room.gridY === gridY);
+        return this.rooms.some((room) => room.gridX === gridX && room.gridY === gridY);
     }
 
     /**
@@ -968,7 +965,7 @@ class Grid {
      * @return {void}
      */
     loadFromLocalStorage() {
-        this.rooms = JSON.parse(localStorage.getItem('rooms')) || [];
+        this.rooms = JSON.parse(localStorage.getItem("rooms")) || [];
         // Find the highest and lowest roomId
         let highestRoomId = 0;
         let lowestRoomId = Number.MAX_SAFE_INTEGER;
@@ -1063,17 +1060,17 @@ class Grid {
      * @return {void}
      */
     saveExit(exitRow, room) {
-        const newDirection = exitRow.querySelector('.edit-direction').value;
-        const newTarget = exitRow.querySelector('.edit-target').value;
-        const oldDirection = exitRow.getAttribute('data-direction');
+        const newDirection = exitRow.querySelector(".edit-direction").value;
+        const newTarget = exitRow.querySelector(".edit-target").value;
+        const oldDirection = exitRow.getAttribute("data-direction");
 
         delete room.exits[oldDirection];
         room.exits[newDirection] = newTarget;
 
         const reverseDirection = this.getReverseDirection(newDirection);
-        const targetRoom = this.rooms.find(r => `${String(r.zoneId).padStart(3, '0')}:${String(r.roomId).padStart(3, '0')}` === newTarget);
+        const targetRoom = this.rooms.find((r) => `${String(r.zoneId).padStart(3, "0")}:${String(r.roomId).padStart(3, "0")}` === newTarget);
         if (targetRoom) {
-            targetRoom.exits[reverseDirection] = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+            targetRoom.exits[reverseDirection] = `${String(room.zoneId).padStart(3, "0")}:${String(room.roomId).padStart(3, "0")}`;
         }
 
         this.showEditForm(room);
@@ -1089,15 +1086,15 @@ class Grid {
      * @return {void}
      */
     saveNewExit(newExitRow, room) {
-        const newDirection = newExitRow.querySelector('.edit-direction').value;
-        const newTarget = newExitRow.querySelector('.edit-target').value;
+        const newDirection = newExitRow.querySelector(".edit-direction").value;
+        const newTarget = newExitRow.querySelector(".edit-target").value;
 
         room.exits[newDirection] = newTarget;
 
         const reverseDirection = this.getReverseDirection(newDirection);
-        const targetRoom = this.rooms.find(r => `${String(r.zoneId).padStart(3, '0')}:${String(r.roomId).padStart(3, '0')}` === newTarget);
+        const targetRoom = this.rooms.find((r) => `${String(r.zoneId).padStart(3, "0")}:${String(r.roomId).padStart(3, "0")}` === newTarget);
         if (targetRoom) {
-            targetRoom.exits[reverseDirection] = `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}`;
+            targetRoom.exits[reverseDirection] = `${String(room.zoneId).padStart(3, "0")}:${String(room.roomId).padStart(3, "0")}`;
         }
 
         this.showEditForm(room);
@@ -1112,8 +1109,8 @@ class Grid {
      * @param {object} room - The room object to save the prop to.
      */
     saveNewProp(propRow, room) {
-        const propKey = propRow.querySelector('.edit-prop-key').value.trim();
-        const propValue = propRow.querySelector('.edit-prop-value').value.trim();
+        const propKey = propRow.querySelector(".edit-prop-key").value.trim();
+        const propValue = propRow.querySelector(".edit-prop-value").value.trim();
 
         if (!propKey || /\s/.test(propKey) || !propValue) {
             alert("Invalid key or value. Key must be a single word with no spaces.");
@@ -1133,8 +1130,8 @@ class Grid {
      * @param {string} oldKey - The original key of the prop.
      */
     saveProp(propRow, room, oldKey) {
-        const newKey = propRow.querySelector('.edit-prop-key').value.trim();
-        const newValue = propRow.querySelector('.edit-prop-value').value.trim();
+        const newKey = propRow.querySelector(".edit-prop-key").value.trim();
+        const newValue = propRow.querySelector(".edit-prop-value").value.trim();
 
         if (!newKey || /\s/.test(newKey) || !newValue) {
             alert("Invalid key or value. Key must be a single word with no spaces.");
@@ -1154,13 +1151,13 @@ class Grid {
      * @param {Object} room - The room object to be saved.
      */
     saveRoom(room) {
-        room.name = document.getElementById('roomName').value;
-        room.description = document.getElementById('roomDescription').value;
-        room.lockable = document.getElementById('roomLockable').checked;
-        room.locked = document.getElementById('roomLocked').checked;
-        room.solo = document.getElementById('roomSolo').checked || false; // Default to false
-        room.creator = document.getElementById('roomCreator').value;
-        room.owner = document.getElementById('roomOwner').value;
+        room.name = document.getElementById("roomName").value;
+        room.description = document.getElementById("roomDescription").value;
+        room.lockable = document.getElementById("roomLockable").checked;
+        room.locked = document.getElementById("roomLocked").checked;
+        room.solo = document.getElementById("roomSolo").checked || false; // Default to false
+        room.creator = document.getElementById("roomCreator").value;
+        room.owner = document.getElementById("roomOwner").value;
 
         this.drawGrid(); // Redraw the grid to reflect changes
         this.closeEditForm();
@@ -1173,7 +1170,7 @@ class Grid {
      * @returns {void} - This method does not return anything.
      */
     saveToLocalStorage() {
-        localStorage.setItem('rooms', JSON.stringify(this.rooms));
+        localStorage.setItem("rooms", JSON.stringify(this.rooms));
     }
 
     /**
@@ -1186,23 +1183,23 @@ class Grid {
     selectTool(tool) {
         this.selectedTool = tool;
 
-        const tools = document.querySelectorAll('#toolPallet div');
-        tools.forEach(toolDiv => {
-            toolDiv.classList.remove('active');
+        const tools = document.querySelectorAll("#toolPallet div");
+        tools.forEach((toolDiv) => {
+            toolDiv.classList.remove("active");
         });
 
         switch (tool) {
-            case 'room':
-                document.getElementById('roomShapeContainer').classList.add('active');
+            case "room":
+                document.getElementById("roomShapeContainer").classList.add("active");
                 break;
-            case 'eraser':
-                document.getElementById('eraserIconContainer').classList.add('active');
+            case "eraser":
+                document.getElementById("eraserIconContainer").classList.add("active");
                 break;
-            case 'edit':
-                document.getElementById('penIconContainer').classList.add('active');
+            case "edit":
+                document.getElementById("penIconContainer").classList.add("active");
                 break;
             default:
-                document.getElementById('pointerIconContainer').classList.add('active');
+                document.getElementById("pointerIconContainer").classList.add("active");
                 break;
         }
     }
@@ -1213,12 +1210,12 @@ class Grid {
      * @returns {void} This function does not return any value.
      */
     setupCanvasEventListeners() {
-        stage.on('mousedown', (e) => {
+        stage.on("mousedown", (e) => {
             const pos = stage.getPointerPosition();
             this.handleMouseDown(pos.x, pos.y);
         });
-        stage.on('mouseup', () => this.handleMouseUp());
-        stage.on('mousemove', (e) => {
+        stage.on("mouseup", () => this.handleMouseUp());
+        stage.on("mousemove", (e) => {
             const pos = stage.getPointerPosition();
             this.handleMouseMove(pos.x, pos.y);
         });
@@ -1244,7 +1241,7 @@ class Grid {
      * @return {void}
      */
     setupKeyListener() {
-        window.addEventListener('keydown', (e) => this.handleKeydown(e));
+        window.addEventListener("keydown", (e) => this.handleKeydown(e));
     }
 
     /**
@@ -1253,7 +1250,7 @@ class Grid {
      * @return {void}
      */
     setupMouseMoveListener() {
-        window.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        window.addEventListener("mousemove", (e) => this.handleMouseMove(e));
     }
 
     /**
@@ -1263,44 +1260,43 @@ class Grid {
      * @returns {void}
      */
     setupToolEventListeners() {
-        const roomShapeContainer = document.getElementById('roomShapeContainer');
-        const pointerIconContainer = document.getElementById('pointerIconContainer');
-        const eraserIconContainer = document.getElementById('eraserIconContainer');
-        const penIconContainer = document.getElementById('penIconContainer');
-        const helpIconContainer = document.getElementById('helpIconContainer');
+        const roomShapeContainer = document.getElementById("roomShapeContainer");
+        const pointerIconContainer = document.getElementById("pointerIconContainer");
+        const eraserIconContainer = document.getElementById("eraserIconContainer");
+        const penIconContainer = document.getElementById("penIconContainer");
+        const helpIconContainer = document.getElementById("helpIconContainer");
 
         if (roomShapeContainer) {
-            roomShapeContainer.addEventListener('click', (e) => {
+            roomShapeContainer.addEventListener("click", (e) => {
                 e.stopPropagation();
-                this.selectTool('room');
+                this.selectTool("room");
             });
         }
 
         if (pointerIconContainer) {
-            pointerIconContainer.addEventListener('click', (e) => {
+            pointerIconContainer.addEventListener("click", (e) => {
                 e.stopPropagation();
-                this.selectTool('pan');
+                this.selectTool("pan");
             });
         }
 
         if (eraserIconContainer) {
-            eraserIconContainer.addEventListener('click', (e) => {
+            eraserIconContainer.addEventListener("click", (e) => {
                 e.stopPropagation();
-                this.selectTool('eraser');
+                this.selectTool("eraser");
             });
         }
 
         if (penIconContainer) {
-            penIconContainer.addEventListener('click', (e) => {
+            penIconContainer.addEventListener("click", (e) => {
                 e.stopPropagation();
-                this.selectTool('edit');
+                this.selectTool("edit");
             });
         }
 
         if (helpIconContainer) {
-            helpIconContainer.addEventListener('click', (e) => {
+            helpIconContainer.addEventListener("click", (e) => {
                 e.stopPropagation();
-
             });
         }
     }
@@ -1311,15 +1307,15 @@ class Grid {
      * @returns {undefined}
      */
     setupZoomEventListener() {
-        stage.on('wheel', (e) => this.handleZoom(e));
+        stage.on("wheel", (e) => this.handleZoom(e));
     }
 
     showEditForm(room) {
         const directions = ["north", "south", "east", "west", "up", "down", "northeast", "northwest", "southeast", "southwest"];
-        const formattedZoneId = String(room.zoneId).padStart(3, '0');
-        const formattedRoomId = String(room.roomId).padStart(3, '0');
+        const formattedZoneId = String(room.zoneId).padStart(3, "0");
+        const formattedRoomId = String(room.roomId).padStart(3, "0");
 
-        let exitsHtml = '';
+        let exitsHtml = "";
         for (let [direction, target] of Object.entries(room.exits)) {
             exitsHtml += `
         <div class="exit-row" data-direction="${direction}">
@@ -1334,7 +1330,7 @@ class Grid {
             exitsHtml += `<span class="exit-row add-exit"><i class="fas fa-plus"></i></span>`;
         }
 
-        let propsHtml = '';
+        let propsHtml = "";
         for (let [key, value] of Object.entries(room.props)) {
             propsHtml += `<div class="prop-row" data-key="${key}">
                 ${key}: ${value}
@@ -1351,7 +1347,7 @@ class Grid {
         const formHtml = `<div id="editFormContent">
             <div>
                 <button id="saveRoom">Save</button>
-                <button id="cancelEdit" style="position: absolute;right: 0;">Cancel</button>            
+                <button id="cancelEdit" style="position: absolute;right: 0;">Cancel</button>
             </div>
             <b>Edit Room: ${formattedZoneId}:${formattedRoomId}</b>
             <label for="roomName">Name:</label>
@@ -1359,16 +1355,16 @@ class Grid {
             <label for="roomDescription">Description:</label>
             <textarea id="roomDescription" style="min-width: 100%;">${room.description}</textarea>
             <div>
-                <input type="checkbox" id="roomLockable" ${room.lockable ? 'checked' : ''}>
+                <input type="checkbox" id="roomLockable" ${room.lockable ? "checked" : ""}>
                 <label for="roomLockable">Lockable</label>
             </div>
             <div>
-                <input type="checkbox" id="roomLocked" ${room.locked ? 'checked' : ''}>
-                <label for="roomLocked">Locked</label>            
+                <input type="checkbox" id="roomLocked" ${room.locked ? "checked" : ""}>
+                <label for="roomLocked">Locked</label>
             </div>
             <div>
-                <input type="checkbox" id="roomSolo" ${room.solo ? 'checked' : ''}>
-                <label for="roomSolo">Solo</label>            
+                <input type="checkbox" id="roomSolo" ${room.solo ? "checked" : ""}>
+                <label for="roomSolo">Solo</label>
             </div>
             <label for="roomCreator">Creator:</label>
             <input type="text" id="roomCreator" value="${room.creator}">
@@ -1390,37 +1386,37 @@ class Grid {
             </div>
         </div>`;
 
-        const slideOutForm = document.getElementById('slideOutForm');
+        const slideOutForm = document.getElementById("slideOutForm");
         slideOutForm.innerHTML = formHtml;
-        slideOutForm.classList.remove('hidden');
-        slideOutForm.classList.add('visible');
+        slideOutForm.classList.remove("hidden");
+        slideOutForm.classList.add("visible");
 
-        document.getElementById('saveRoom').addEventListener('click', () => this.saveRoom(room));
-        document.getElementById('cancelEdit').addEventListener('click', () => this.closeEditForm());
+        document.getElementById("saveRoom").addEventListener("click", () => this.saveRoom(room));
+        document.getElementById("cancelEdit").addEventListener("click", () => this.closeEditForm());
 
-        document.querySelectorAll('.edit-exit').forEach(el => el.addEventListener('click', (e) => this.editExit(e, room)));
-        document.querySelectorAll('.delete-exit').forEach(el => el.addEventListener('click', (e) => this.deleteExit(e, room)));
-        document.querySelector('.add-exit').addEventListener('click', () => this.addExit(room));
+        document.querySelectorAll(".edit-exit").forEach((el) => el.addEventListener("click", (e) => this.editExit(e, room)));
+        document.querySelectorAll(".delete-exit").forEach((el) => el.addEventListener("click", (e) => this.deleteExit(e, room)));
+        document.querySelector(".add-exit").addEventListener("click", () => this.addExit(room));
 
-        document.querySelectorAll('.edit-prop').forEach(el => el.addEventListener('click', (e) => this.editProp(e, room)));
-        document.querySelectorAll('.delete-prop').forEach(el => el.addEventListener('click', (e) => this.deleteProp(e, room)));
-        document.querySelector('.add-prop').addEventListener('click', () => this.addProp(room));
+        document.querySelectorAll(".edit-prop").forEach((el) => el.addEventListener("click", (e) => this.editProp(e, room)));
+        document.querySelectorAll(".delete-prop").forEach((el) => el.addEventListener("click", (e) => this.deleteProp(e, room)));
+        document.querySelector(".add-prop").addEventListener("click", () => this.addProp(room));
 
         // Add event listeners for D-pad buttons
-        document.querySelectorAll('.dpad-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const direction = button.getAttribute('data-direction');
+        document.querySelectorAll(".dpad-button").forEach((button) => {
+            button.addEventListener("click", () => {
+                const direction = button.getAttribute("data-direction");
                 switch (direction) {
-                    case 'up':
+                    case "up":
                         room.gridY -= 1;
                         break;
-                    case 'down':
+                    case "down":
                         room.gridY += 1;
                         break;
-                    case 'left':
+                    case "left":
                         room.gridX -= 1;
                         break;
-                    case 'right':
+                    case "right":
                         room.gridX += 1;
                         break;
                 }
@@ -1453,11 +1449,11 @@ class Grid {
      * @return {void}
      */
     updateAllRoomExitZoneIds(newZoneId) {
-        this.rooms.forEach(room => {
-            Object.keys(room.exits).forEach(exit => {
+        this.rooms.forEach((room) => {
+            Object.keys(room.exits).forEach((exit) => {
                 let oldExitValue = room.exits[exit];
                 // Break down the exit value (e.g. "002:001" becomes ["002", "001"])
-                let [oldZone, roomId] = oldExitValue.split(':');
+                let [oldZone, roomId] = oldExitValue.split(":");
                 // Build a new value (e.g. ["069", "001"] becomes "069:001")
                 room.exits[exit] = `${zeroPad(newZoneId, 3)}:${roomId}`;
             });
@@ -1472,7 +1468,7 @@ class Grid {
      * @param {string} newZoneId - The new zone ID to be assigned to all rooms.
      */
     updateAllRoomZoneIds(newZoneId) {
-        this.rooms.forEach(room => {
+        this.rooms.forEach((room) => {
             room.zoneId = newZoneId;
         });
     }
@@ -1487,7 +1483,7 @@ class Grid {
     updateInfo(x, y) {
         let gridX = Math.floor((x - this.offsetX) / (20 * this.scale));
         let gridY = Math.floor((y - this.offsetY) / (20 * this.scale));
-        document.getElementById('info').textContent = `X ${gridX} Y ${gridY}`;// s:${this.scale.toFixed(2)}`;
+        document.getElementById("info").textContent = `X ${gridX} Y ${gridY}`; // s:${this.scale.toFixed(2)}`;
     }
 
     /**
@@ -1564,29 +1560,29 @@ document.addEventListener("DOMContentLoaded", () => {
     // When the user clicks the help icon, open the modal
     helpIcon.onclick = function () {
         helpModal.style.display = "block";
-    }
+    };
 
     // When the user clicks on <span> (x), close the modal
     closeModal.onclick = function () {
         helpModal.style.display = "none";
-    }
+    };
 
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function (event) {
         if (event.target == helpModal) {
             helpModal.style.display = "none";
         }
-    }
+    };
 });
 
-document.getElementById('startingRoomId').addEventListener('change', function () {
+document.getElementById("startingRoomId").addEventListener("change", function () {
     changeRoomId(this);
     grid.startingRoomId = parseInt(this.value, 10); // Update grid startingRoomId as an integer
 });
 
 let debounceTimer;
 
-document.getElementById('zoneId').addEventListener('change', function () {
+document.getElementById("zoneId").addEventListener("change", function () {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
         changeZoneId(this);
@@ -1596,31 +1592,31 @@ document.getElementById('zoneId').addEventListener('change', function () {
 });
 
 // Add event listener for the terminal icon
-document.getElementById('terminalIcon').addEventListener('click', () => {
-    document.getElementById('terminalPopover').classList.remove('hidden');
+document.getElementById("terminalIcon").addEventListener("click", () => {
+    document.getElementById("terminalPopover").classList.remove("hidden");
     startTerminal();
 });
 
 // Add event listener to close the terminal
-document.getElementById('closeTerminal').addEventListener('click', () => {
-    document.getElementById('terminalPopover').classList.add('hidden');
+document.getElementById("closeTerminal").addEventListener("click", () => {
+    document.getElementById("terminalPopover").classList.add("hidden");
     resetTerminal();
 });
 
 // Add event listener for terminal input
-document.getElementById('terminalInput').addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
+document.getElementById("terminalInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
         const command = event.target.value.trim();
         if (command) {
             processCommand(command);
-            event.target.value = '';
+            event.target.value = "";
         }
     }
 });
 
 // Initialize Konva
 const stage = new Konva.Stage({
-    container: 'konva-container', // Use the ID of your Konva div container
+    container: "konva-container", // Use the ID of your Konva div container
     width: window.innerWidth,
     height: window.innerHeight,
 });
@@ -1636,33 +1632,33 @@ const grid = new Grid(totalGridSquares, scale);
 grid.initializeGrid();
 
 // Handle window resize
-window.addEventListener('resize', () => grid.handleResize());
+window.addEventListener("resize", () => grid.handleResize());
 
 // Set the pan too to the selected tool on load
-grid.selectTool('pan');
+grid.selectTool("pan");
 
 // Used for the simulated terminal.
 const directionMap = {
-    'north': 'north',
-    'n': 'north',
-    'south': 'south',
-    's': 'south',
-    'east': 'east',
-    'e': 'east',
-    'west': 'west',
-    'w': 'west',
-    'northeast': 'northeast',
-    'ne': 'northeast',
-    'northwest': 'northwest',
-    'nw': 'northwest',
-    'southeast': 'southeast',
-    'se': 'southeast',
-    'southwest': 'southwest',
-    'sw': 'southwest',
-    'up': 'up',
-    'u': 'up',
-    'down': 'down',
-    'd': 'down'
+    north: "north",
+    n: "north",
+    south: "south",
+    s: "south",
+    east: "east",
+    e: "east",
+    west: "west",
+    w: "west",
+    northeast: "northeast",
+    ne: "northeast",
+    northwest: "northwest",
+    nw: "northwest",
+    southeast: "southeast",
+    se: "southeast",
+    southwest: "southwest",
+    sw: "southwest",
+    up: "up",
+    u: "up",
+    down: "down",
+    d: "down",
 };
 
 const formatSpecs = {
@@ -1696,36 +1692,20 @@ const fakeUser = {
     firstName: "John",
     lastName: "Doe",
     supportsColor: true,
-    supportsHighAscii: true
+    supportsHighAscii: true,
 };
 
 // List of supported movement commands
-const movementCommands = [
-    "go", "abate", "amble", "bang", "bolt", "bounce", "bound", "burst", "bust", "cant", "canter", "caper", "careen",
-    "cavort", "circle", "clamber", "claw", "cleave", "climb", "coil", "collapse", "crawl", "creep", "crouch", "crush",
-    "curve", "dance", "dart", "dash", "descend", "dip", "dive", "double", "drop", "edge", "erupt", "escape", "fade",
-    "fall", "fight", "flit", "float", "flop", "flounce", "flow", "flutter", "fly", "frisk", "frolic", "gallop", "galumph",
-    "glide", "hike", "hobble", "hop", "hopscotch", "hover", "hunch", "hurry", "hurtle", "jog", "jump", "kneel", "kowtow",
-    "lean", "leap", "lie", "limp", "list", "loll", "lope", "lounge", "lower", "lunge", "lurch", "march", "meander",
-    "parade", "pirouette", "pivot", "plod", "plummet", "plunge", "pop", "pounce", "prance", "promenade", "prowl",
-    "pull", "race", "ramble", "retreat", "revolve", "rip", "rocket", "roll", "run", "rush", "sag", "sail", "saunter",
-    "scamper", "scatter", "scoot", "scurry", "scuttle", "shamble", "shiver", "shoot", "shuffle", "sidestep", "sink",
-    "skid", "skip", "skitter", "slide", "slink", "slither", "slog", "slouch", "slump", "smash", "snap", "sneak",
-    "snuggle", "soar", "spin", "spiral", "sprawl", "spring", "sprint", "squat", "squirm", "stagger", "stalk", "stamp",
-    "stoop", "stomp", "straggle", "stride", "stroll", "strut", "stumble", "swagger", "sway", "swerve", "swim", "swing",
-    "swoop", "tear", "tilt", "tip", "tiptoe", "toddle", "traipse", "tramp", "tread", "trip", "trot", "trudge", "twirl",
-    "twist", "vault", "waddle", "wade", "waft", "walk", "wander", "wane", "weave", "wheel", "whip", "whirl", "whisk", "whiz",
-    "wiggle", "wobble", "wriggle", "writhe", "zag", "zigzag"
-];
+const movementCommands = ["go", "abate", "amble", "bang", "bolt", "bounce", "bound", "burst", "bust", "cant", "canter", "caper", "careen", "cavort", "circle", "clamber", "claw", "cleave", "climb", "coil", "collapse", "crawl", "creep", "crouch", "crush", "curve", "dance", "dart", "dash", "descend", "dip", "dive", "double", "drop", "edge", "erupt", "escape", "fade", "fall", "fight", "flit", "float", "flop", "flounce", "flow", "flutter", "fly", "frisk", "frolic", "gallop", "galumph", "glide", "hike", "hobble", "hop", "hopscotch", "hover", "hunch", "hurry", "hurtle", "jog", "jump", "kneel", "kowtow", "lean", "leap", "lie", "limp", "list", "loll", "lope", "lounge", "lower", "lunge", "lurch", "march", "meander", "parade", "pirouette", "pivot", "plod", "plummet", "plunge", "pop", "pounce", "prance", "promenade", "prowl", "pull", "race", "ramble", "retreat", "revolve", "rip", "rocket", "roll", "run", "rush", "sag", "sail", "saunter", "scamper", "scatter", "scoot", "scurry", "scuttle", "shamble", "shiver", "shoot", "shuffle", "sidestep", "sink", "skid", "skip", "skitter", "slide", "slink", "slither", "slog", "slouch", "slump", "smash", "snap", "sneak", "snuggle", "soar", "spin", "spiral", "sprawl", "spring", "sprint", "squat", "squirm", "stagger", "stalk", "stamp", "stoop", "stomp", "straggle", "stride", "stroll", "strut", "stumble", "swagger", "sway", "swerve", "swim", "swing", "swoop", "tear", "tilt", "tip", "tiptoe", "toddle", "traipse", "tramp", "tread", "trip", "trot", "trudge", "twirl", "twist", "vault", "waddle", "wade", "waft", "walk", "wander", "wane", "weave", "wheel", "whip", "whirl", "whisk", "whiz", "wiggle", "wobble", "wriggle", "writhe", "zag", "zigzag"];
 
 /**
  * Appends the given text to the terminal, converting ANSI codes to HTML.
- * 
+ *
  * @param {string} text - The text to append to the terminal.
  */
 function appendToTerminalText(text) {
-    const terminalText = document.getElementById('terminalText');
-    const terminalContent = document.getElementById('terminalContent');
+    const terminalText = document.getElementById("terminalText");
+    const terminalContent = document.getElementById("terminalContent");
     const ansi_up = new AnsiUp();
 
     // Convert ANSI codes to HTML
@@ -1741,13 +1721,6 @@ function appendToTerminalText(text) {
  * Changes the room ID value of an input field.
  *
  * @param {HTMLElement} input - The input field element to change the room ID value for.
- *
- * @return {void} - This method does not return a value.
- */
-/**
- * Changes the room ID value of an input field.
- *
- * @param {HTMLElement} input - The input field element to change the room ID value for.
  */
 const changeRoomId = (input) => {
     let roomIdValue = parseInt(input.value, 10);
@@ -1759,12 +1732,6 @@ const changeRoomId = (input) => {
     }
 };
 
-/**
- * Updates the zone ID for a given input field, and performs various additional actions if the zone ID is valid.
- *
- * @param {HTMLInputElement} input - The input field to update the zone ID for.
- * @return {void}
- */
 /**
  * Updates the zone ID for a given input field, and performs various additional actions if the zone ID is valid.
  *
@@ -1792,27 +1759,15 @@ const changeZoneId = (input) => {
  * @param {...*} values - The values to be excluded from the array.
  * @returns {Array} - A new array with the specified values removed.
  */
-/**
- * Removes specified values from an array.
- *
- * @param {Array} array - The input array to be filtered.
- * @param {...*} values - The values to be excluded from the array.
- * @returns {Array} - A new array with the specified values removed.
- */
 const exclude = (array, ...values) => {
-    return array.filter(item => !values.includes(item));
+    return array.filter((item) => !values.includes(item));
 };
 
-/**
- * Logs the room information from the grid object.
- *
- * @return {undefined}
- */
 /**
  * Logs the room information from the grid object to the console for debugging purposes.
  */
 const debugRooms = () => {
-    if (typeof grid !== 'undefined') {
+    if (typeof grid !== "undefined") {
         console.log(grid.rooms);
     } else {
         console.log("Grid is not defined");
@@ -1821,12 +1776,12 @@ const debugRooms = () => {
 
 /**
  * Displays the details of a room in the terminal.
- * 
+ *
  * @param {Object} room - The room object to display.
  */
 function displayRoom(room) {
     // Mark the current room
-    grid.rooms.forEach(r => delete r.isCurrent);
+    grid.rooms.forEach((r) => delete r.isCurrent);
     room.isCurrent = true;
 
     // Parse and format room details
@@ -1837,7 +1792,9 @@ function displayRoom(room) {
     const roomText = formatText(`\n<yellow>{ <cyan>${room.name} <yellow>}<reset>\n${formattedDescription}\n`, fakeUser);
 
     // Get exits
-    const exits = Object.keys(room.exits).map(exit => `<yellow>[<cyan>${exit}<yellow>]<reset>`).join(' ');
+    const exits = Object.keys(room.exits)
+        .map((exit) => `<yellow>[<cyan>${exit}<yellow>]<reset>`)
+        .join(" ");
     const exitsText = formatText(`Exits: ${exits}\n\n`, fakeUser);
 
     // Display room details and exits
@@ -1846,7 +1803,7 @@ function displayRoom(room) {
 
 /**
  * Formats the given text by replacing custom tags and user-specific format specifiers.
- * 
+ *
  * @param {string} text - The text to format.
  * @param {Object} user - The user object containing user-specific settings.
  * @returns {string} - The formatted text.
@@ -1870,50 +1827,38 @@ function formatText(text, user = {}) {
 
     // Remove ANSI color codes if the user doesn't support colors
     if (!user.supportsColor) {
-        text = text.replace(/\x1b\[\d+m/g, '');
+        text = text.replace(/\x1b\[\d+m/g, "");
     }
 
     // Strip high ASCII characters if the user has supportsHighAscii set to false
     if (!user.supportsHighAscii) {
-        text = text.replace(/[\u0080-\uFFFF]/g, '');
+        text = text.replace(/[\u0080-\uFFFF]/g, "");
     }
 
     return text;
 }
 
 /**
- * Retrieves JSON representation of rooms from the grid object.
- *
- * @return {void}
- */
-/**
  * Retrieves JSON representation of rooms from the grid object and logs it to the console.
  */
 const jsonRooms = () => {
-    if (typeof grid !== 'undefined') {
+    if (typeof grid !== "undefined") {
         console.log(JSON.stringify(grid.rooms));
     } else {
         console.log("Grid is not defined");
     }
-}
+};
 
 /**
- * Function to load a map from a JSON file.
- * The function creates an input element of type 'file' and accepts JSON files only.
- * On change of the input element, the function reads the selected file and attempts to parse it as JSON.
- * If successful, the function assigns the parsed data to the 'rooms' property of the 'grid' object and displays a success message.
- * If unable to parse the file as JSON, an error message is displayed.
- */
-/**
  * Loads a map from a JSON file selected by the user.
- * Prompts the user to select a JSON file, reads the file, parses it as JSON, 
+ * Prompts the user to select a JSON file, reads the file, parses it as JSON,
  * and assigns the parsed data to the 'rooms' property of the 'grid' object.
  * Updates the UI with the loaded map data.
  */
 const loadMap = () => {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/map';
+    let input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/map";
 
     input.onchange = (event) => {
         let file = event.target.files[0];
@@ -1971,20 +1916,15 @@ const newMap = () => {
 
 /**
  * Toggles the visibility of the menu by adding or removing the 'hidden' class.
- *
- * @return {undefined}
- */
-/**
- * Toggles the visibility of the menu by adding or removing the 'hidden' class.
  */
 const openMenu = () => {
-    var menu = document.getElementById('expanded-menu');
-    menu.classList.toggle('hidden');
+    var menu = document.getElementById("expanded-menu");
+    menu.classList.toggle("hidden");
 };
 
 /**
  * Parses the room description and replaces prop placeholders with their actual values.
- * 
+ *
  * @param {string} description - The room description to parse.
  * @param {Object} props - The object containing prop key-value pairs.
  * @returns {string} - The parsed description with prop placeholders replaced.
@@ -2013,20 +1953,19 @@ const parseProps = (description, props) => {
     return parsedDescription;
 };
 
-
 /**
  * Processes the user's command and performs the corresponding action.
- * 
+ *
  * @param {string} command - The user's command to process.
  */
 function processCommand(command) {
-    const currentRoom = grid.rooms.find(room => room.isCurrent);
+    const currentRoom = grid.rooms.find((room) => room.isCurrent);
     if (currentRoom) {
-        const parts = command.toLowerCase().split(' ');
+        const parts = command.toLowerCase().split(" ");
         const mainCommand = parts[0];
-        const arg = parts.slice(1).join(' ');
+        const arg = parts.slice(1).join(" ");
 
-        if (mainCommand === 'look' || mainCommand === 'l') {
+        if (mainCommand === "look" || mainCommand === "l") {
             if (arg) {
                 if (currentRoom.props && currentRoom.props[arg]) {
                     appendToTerminalText(formatText(`${currentRoom.props[arg]}\n`, fakeUser));
@@ -2041,7 +1980,7 @@ function processCommand(command) {
             if (direction) {
                 const targetRoomId = currentRoom.exits[direction];
                 if (targetRoomId) {
-                    const targetRoom = grid.rooms.find(room => `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}` === targetRoomId);
+                    const targetRoom = grid.rooms.find((room) => `${String(room.zoneId).padStart(3, "0")}:${String(room.roomId).padStart(3, "0")}` === targetRoomId);
                     if (targetRoom) {
                         displayRoom(targetRoom);
                     } else {
@@ -2057,7 +1996,7 @@ function processCommand(command) {
             const direction = directionMap[mainCommand];
             const targetRoomId = currentRoom.exits[direction];
             if (targetRoomId) {
-                const targetRoom = grid.rooms.find(room => `${String(room.zoneId).padStart(3, '0')}:${String(room.roomId).padStart(3, '0')}` === targetRoomId);
+                const targetRoom = grid.rooms.find((room) => `${String(room.zoneId).padStart(3, "0")}:${String(room.roomId).padStart(3, "0")}` === targetRoomId);
                 if (targetRoom) {
                     displayRoom(targetRoom);
                 } else {
@@ -2073,11 +2012,6 @@ function processCommand(command) {
 }
 
 /**
- * This function generates a zip file containing JSON files for each room in the grid.
- * It deep copies the grid.rooms data, removes unnecessary fields, and creates a JSON file for each room.
- * The generated zip file is then downloaded by creating a link element and clicking it.
- */
-/**
  * Processes the current map by generating a zip file containing JSON files for each room.
  * Removes unnecessary fields from the room data and creates a JSON file for each room.
  * Generates a zip file containing all the room JSON files and initiates its download.
@@ -2088,52 +2022,44 @@ const processMap = () => {
     // Deep copy grid.rooms
     let roomsData = JSON.parse(JSON.stringify(grid.rooms));
 
-    roomsData.forEach(room => {
-        ['gridX', 'gridY', 'gridSize', 'rect', 'text'].forEach(key => delete room[key]);
+    roomsData.forEach((room) => {
+        ["gridX", "gridY", "gridSize", "rect", "text"].forEach((key) => delete room[key]);
 
         // Create a JSON file for each room and add it to the zip
         zip.file(`${zeroPad(room.zoneId, 3)}:${zeroPad(room.roomId, 3)}.json`, JSON.stringify(room));
     });
 
-    zip.generateAsync({type: "blob"})
-        .then(function (content) {
-            // Create a link and click it to download the zip file
-            let link = document.createElement('a');
-            link.download = `${zeroPad(grid.rooms[0].zoneId, 3)}.zip`;
-            link.href = URL.createObjectURL(content);
-            link.click();
-        });
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+        // Create a link and click it to download the zip file
+        let link = document.createElement("a");
+        link.download = `${zeroPad(grid.rooms[0].zoneId, 3)}.zip`;
+        link.href = URL.createObjectURL(content);
+        link.click();
+    });
 };
 
 /**
  * Resets the terminal by clearing the terminal text.
  */
 function resetTerminal() {
-    document.getElementById('terminalText').textContent = '';
+    document.getElementById("terminalText").textContent = "";
 }
 
-/**
- * Saves the current rooms data to a file.
- * This function deep copies the room data from the global variable `grid`,
- * and saves it as a JSON file with a specified filename.
- *
- * If the `grid` variable is not defined, an error message is logged to the console.
- */
 /**
  * Saves the current map data to a JSON file.
  * Creates a deep copy of the room data from the 'grid' object,
  * stringifies it, and initiates the download of the JSON file.
  */
 const saveMap = () => {
-    if (typeof grid !== 'undefined') {
+    if (typeof grid !== "undefined") {
         // Deepcopy the room data
         let mapData = JSON.parse(JSON.stringify(grid.rooms));
 
         let data = JSON.stringify(mapData);
-        let blob = new Blob([data], {type: 'application/json'});
+        let blob = new Blob([data], { type: "application/json" });
         let url = URL.createObjectURL(blob);
 
-        let link = document.createElement('a');
+        let link = document.createElement("a");
         link.download = `zone_${document.getElementById("zoneId").value}.map`;
         link.href = url;
         link.click();
