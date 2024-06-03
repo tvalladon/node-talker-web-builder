@@ -446,7 +446,7 @@ class Grid {
         const text = new Konva.Text({
             x: room.gridX * 20 * this.scale + this.offsetX + (1.75 * this.scale),
             y: room.gridY * 20 * this.scale + this.offsetY + (1.75 * this.scale), // Center text vertically
-            text: `${roomName ? '{ ' + roomName + ' } ' : ''}[${roomId}]\r\n${room.description}`,
+            text: `${roomName ? '{ ' + roomName + ' } ' : ''}[${roomId}]\n\n${room.description}`,
             fontSize: 0.25 * this.scale, // Adjust font size to fit within the room
             width: 16.5 * this.scale,
             verticalAlign: 'middle', // Ensure text is centered vertically
