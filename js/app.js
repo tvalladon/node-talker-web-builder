@@ -272,6 +272,13 @@ class Grid {
         layer.draw();
     }
 
+    /**
+     * Draws a dashed arrow line between two points.
+     * 
+     * @param {Array} points - An array of four numbers representing the start and end points of the line [sourceX, sourceY, targetX, targetY].
+     * @param {string} color - The color of the line and arrow.
+     * @param {boolean} hasArrow - Whether to draw an arrowhead at the specified position on the line.
+     */
     drawDashedArrowLine(points, color, hasArrow) {
         const [sourceX, sourceY, targetX, targetY] = points;
         const arrowPosition = 0.05; // Adjust this value to change the arrow position along the line (0 to 1)
