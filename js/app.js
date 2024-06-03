@@ -274,7 +274,7 @@ class Grid {
 
     /**
      * Draws a dashed arrow line between two points.
-     * 
+     *
      * @param {Array} points - An array of four numbers representing the start and end points of the line [sourceX, sourceY, targetX, targetY].
      * @param {string} color - The color of the line and arrow.
      * @param {boolean} hasArrow - Whether to draw an arrowhead at the specified position on the line.
@@ -1320,7 +1320,7 @@ class Grid {
     /**
      * Displays the edit form for a given room.
      * Generates the form HTML with the room's current data and adds event listeners for form interactions.
-     * 
+     *
      * @param {Object} room - The room object to display the edit form for.
      */
     showEditForm(room) {
