@@ -1335,14 +1335,14 @@ class Grid {
         </div>
         <div id="dpad-container">
             <div class="dpad-row">
-                <button class="dpad-button fa-solid fa-chevron-up" data-direction="up"></button>
+                <button class="dpad-button fas fa-chevron-up" data-direction="up"></button>
             </div>
             <div class="dpad-row">
-                <button class="dpad-button fa-solid fa-chevron-left" data-direction="left"></button>
-                <button class="dpad-button fa-solid fa-chevron-right" data-direction="right"></button>
+                <button class="dpad-button fas fa-chevron-left" data-direction="left"></button>
+                <button class="dpad-button fas fa-chevron-right" data-direction="right"></button>
             </div>
             <div class="dpad-row">
-                <button class="dpad-button fa-solid fa-chevron-down" data-direction="down"></button>
+                <button class="dpad-button fas fa-chevron-down" data-direction="down"></button>
             </div>
         </div>`;
 
